@@ -1,0 +1,11 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProductCard from '@/components/ProductCard.astro';
+import { getProducts } from '@/lib/commerce';
+const products = await getProducts();
+---
+<BaseLayout title="Colecciones" description="Colecciones Casa Trama organizadas por fibra, tono y forma de uso.">
+  <header class="page-hero shell"><p class="eyebrow">Por materia y estación</p><h1>Colecciones</h1><div class="page-hero-footer"><p>Una selección pequeña y consciente de textiles para el clima, la pausa y la vida cotidiana.</p><span class="page-count">01</span></div></header>
+  <section class="section-heading shell"><p class="eyebrow">Colección 01</p><h2>La luz del sur</h2></section>
+  <section class="product-grid">{products.map((product, index) => <ProductCard product={product} index={index} />)}</section>
+</BaseLayout>

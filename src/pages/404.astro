@@ -1,0 +1,5 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+Astro.response.status = 404;
+---
+<BaseLayout title="Página no encontrada" description="La página que buscas no está disponible." noindex><section class="simple-page shell"><p class="eyebrow">Error 404</p><h1>Esta trama se cortó.</h1><p>La página cambió de lugar o ya no existe. Puedes volver a la colección completa.</p><a class="button-secondary" href="/tienda/">Volver a la tienda</a></section></BaseLayout>

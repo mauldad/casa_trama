@@ -1,0 +1,143 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getPublicPaymentConfig } from '@/lib/payment';
+
+const payment = getPublicPaymentConfig();
+---
+
+<BaseLayout title="Checkout" description="Completa tus datos de despacho y confirma el pago de tu pedido Casa Trama." noindex>
+  <section class="checkout-page shell">
+    <p class="eyebrow">Compra segura</p>
+    <h1>Checkout</h1>
+    <div class="checkout-layout">
+      <form class="checkout-form" id="checkout-form">
+        <fieldset>
+          <legend>Contacto</legend>
+          <div class="field-grid">
+            <div class="field field-wide"><label for="email">Correo</label><input id="email" name="email" type="email" autocomplete="email" required /></div>
+            <div class="field"><label for="first-name">Nombre</label><input id="first-name" name="firstName" autocomplete="given-name" required /></div>
+            <div class="field"><label for="last-name">Apellido</label><input id="last-name" name="lastName" autocomplete="family-name" required /></div>
+            <div class="field field-wide"><label for="phone">Teléfono</label><input id="phone" name="phone" type="tel" autocomplete="tel" required /></div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Despacho</legend>
+          <div class="field-grid">
+            <div class="field field-wide"><label for="address">Dirección</label><input id="address" name="address" autocomplete="street-address" required /></div>
+            <div class="field"><label for="region">Región</label><select id="region" name="region" required><option value="">Selecciona</option><option>Los Lagos</option><option>Los Ríos</option><option>Metropolitana</option><option>Valparaíso</option><option>Biobío</option></select></div>
+            <div class="field"><label for="city">Comuna</label><input id="city" name="city" autocomplete="address-level2" required /></div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Pago</legend>
+          <p class="checkout-note">
+            Pagarás con <strong>{payment.label}</strong>. Serás redirigida a un formulario seguro de Transbank para completar el cobro.
+          </p>
+        </fieldset>
+        <div class="checkout-note">El despacho se definirá más adelante. Por ahora solo se cobra el total de productos.</div>
+        <button class="button" type="submit" id="checkout-submit">Continuar al pago <span aria-hidden="true">→</span></button>
+        <p class="checkout-note" id="checkout-error" hidden role="alert"></p>
+      </form>
+      <aside class="cart-summary">
+        <p class="eyebrow">Resumen</p>
+        <h2>Pedido Casa Trama</h2>
+        <div id="checkout-lines"></div>
+        <div class="summary-row summary-total"><strong>Total productos</strong><strong id="checkout-total">$0</strong></div>
+        <p>El despacho se calculará y confirmará antes del go-live comercial.</p>
+      </aside>
+    </div>
+  </section>
+  <script is:inline define:vars={{ paymentProvider: payment.provider }}>
+    const cart = JSON.parse(localStorage.getItem('casa-trama-cart-v1') || '[]');
+    const formatter = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+    const container = document.querySelector('#checkout-lines');
+    const submitButton = document.querySelector('#checkout-submit');
+    const errorElement = document.querySelector('#checkout-error');
+
+    cart.forEach((line) => {
+      const row = document.createElement('div');
+      row.className = 'summary-row';
+      const label = document.createElement('span');
+      label.textContent = `${line.name} × ${line.quantity}`;
+      const value = document.createElement('span');
+      value.textContent = formatter.format(line.price * line.quantity);
+      row.append(label, value);
+      container?.appendChild(row);
+    });
+
+    const total = cart.reduce((sum, line) => sum + line.price * line.quantity, 0);
+    const totalElement = document.querySelector('#checkout-total');
+    if (totalElement) totalElement.textContent = formatter.format(total);
+
+    function redirectToWebpay(url, token) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = url;
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'token_ws';
+      input.value = token;
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    }
+
+    document.querySelector('#checkout-form')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!cart.length || total <= 0) {
+        if (errorElement) {
+          errorElement.hidden = false;
+          errorElement.textContent = 'Tu carro está vacío.';
+        }
+        return;
+      }
+
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      submitButton?.setAttribute('disabled', 'true');
+      if (errorElement) errorElement.hidden = true;
+
+      window.dataLayer?.push({
+        event: 'begin_checkout',
+        ecommerce: { currency: 'CLP', value: total, items: cart.map((line) => ({ item_id: line.sku, quantity: line.quantity, price: line.price })) },
+      });
+      window.dataLayer?.push({ event: 'add_shipping_info', ecommerce: { currency: 'CLP', value: total } });
+      window.dataLayer?.push({ event: 'add_payment_info', ecommerce: { currency: 'CLP', value: total, payment_type: paymentProvider } });
+
+      try {
+        const response = await fetch('/api/payments/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: total,
+            customerEmail: formData.get('email'),
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            phone: formData.get('phone'),
+          }),
+        });
+
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No fue posible iniciar el pago.');
+
+        if (payload.redirectUrl && payload.formToken) {
+          redirectToWebpay(payload.redirectUrl, payload.formToken);
+          return;
+        }
+
+        if (payload.redirectUrl) {
+          window.location.href = payload.redirectUrl;
+          return;
+        }
+
+        throw new Error('Respuesta de pago incompleta.');
+      } catch (error) {
+        submitButton?.removeAttribute('disabled');
+        if (errorElement) {
+          errorElement.hidden = false;
+          errorElement.textContent = error instanceof Error ? error.message : 'Error al iniciar el pago.';
+        }
+      }
+    });
+  </script>
+</BaseLayout>

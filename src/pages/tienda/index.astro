@@ -1,0 +1,69 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProductCard from '@/components/ProductCard.astro';
+import { getProducts } from '@/lib/commerce';
+
+const products = await getProducts();
+const categories = ['Todas', ...new Set(products.flatMap((product) => product.categories))];
+---
+
+<BaseLayout title="Tienda" description="Descubre estolas, bufandas y textiles Casa Trama en fibras nobles y tonos inspirados en el sur de Chile.">
+  <header class="page-hero shell">
+    <p class="eyebrow">Colección completa</p>
+    <h1>Tienda</h1>
+    <div class="page-hero-footer">
+      <p>Textiles elegidos por su composición, su caída y la manera en que se sienten al contacto.</p>
+      <span class="page-count">{String(products.length).padStart(2, '0')}</span>
+    </div>
+  </header>
+  <section class="shop-toolbar shell" aria-label="Filtros de productos">
+    <div class="filter-group">
+      {categories.map((category, index) => (
+        <button class="filter-button" type="button" data-filter={category.toLowerCase()} aria-pressed={index === 0 ? 'true' : 'false'}>{category}</button>
+      ))}
+    </div>
+    <label>
+      <span class="sr-only">Ordenar productos</span>
+      <select id="product-sort">
+        <option value="featured">Selección Casa Trama</option>
+        <option value="price-asc">Precio: menor a mayor</option>
+        <option value="price-desc">Precio: mayor a menor</option>
+      </select>
+    </label>
+  </section>
+  <section class="shop-products product-grid" id="product-grid" aria-live="polite">
+    {products.map((product, index) => <ProductCard product={product} index={index} priority={index < 2} />)}
+  </section>
+  <p class="shop-empty shell" id="shop-empty" hidden>No encontramos piezas para este filtro.</p>
+
+  <script>
+    const grid = document.querySelector('#product-grid');
+    const cards = Array.from(document.querySelectorAll('[data-product-card]'));
+    const empty = document.querySelector('#shop-empty');
+    document.querySelectorAll('[data-filter]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.getAttribute('data-filter') || 'todas';
+        document.querySelectorAll('[data-filter]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+        let visible = 0;
+        cards.forEach((card) => {
+          const matches = filter === 'todas' || (card.getAttribute('data-category') || '').includes(filter);
+          card.toggleAttribute('hidden', !matches);
+          if (matches) visible += 1;
+        });
+        empty?.toggleAttribute('hidden', visible > 0);
+      });
+    });
+    document.querySelector('#product-sort')?.addEventListener('change', (event) => {
+      if (!(grid instanceof HTMLElement) || !(event.target instanceof HTMLSelectElement)) return;
+      const direction = event.target.value;
+      const sorted = [...cards].sort((a, b) => {
+        const priceA = Number(a.getAttribute('data-price'));
+        const priceB = Number(b.getAttribute('data-price'));
+        if (direction === 'price-asc') return priceA - priceB;
+        if (direction === 'price-desc') return priceB - priceA;
+        return 0;
+      });
+      sorted.forEach((card) => grid.appendChild(card));
+    });
+  </script>
+</BaseLayout>

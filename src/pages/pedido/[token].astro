@@ -1,0 +1,57 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const { token } = Astro.params;
+const status = Astro.url.searchParams.get('status') || 'unknown';
+
+const copy: Record<string, { title: string; message: string }> = {
+  approved: {
+    title: 'Pago confirmado',
+    message: 'Recibimos tu pago. Te enviaremos la confirmación por correo cuando el pedido quede registrado.',
+  },
+  rejected: {
+    title: 'Pago no completado',
+    message: 'La transacción no pudo autorizarse. Puedes volver al checkout e intentar nuevamente.',
+  },
+  cancelled: {
+    title: 'Pago cancelado',
+    message: 'Saliste del formulario de Webpay sin completar el pago.',
+  },
+  pending: {
+    title: 'Pago en revisión',
+    message: 'Estamos verificando el estado de tu pago. Si el cobro ya se realizó, te contactaremos.',
+  },
+  unknown: {
+    title: 'Estado de pago desconocido',
+    message: 'No pudimos confirmar el resultado todavía. No asumimos éxito hasta verificar con Webpay.',
+  },
+};
+
+const page = copy[status] ?? copy.unknown!;
+const showRetry = status === 'rejected' || status === 'cancelled';
+---
+
+<BaseLayout title={page.title} description={page.message} noindex>
+  <section class="simple-page shell">
+    <p class="eyebrow">Estado del pedido</p>
+    <h1>{page.title}</h1>
+    <p>{page.message}</p>
+    {token && <p class="checkout-note">Referencia interna: {token}</p>}
+    <div class="action-row">
+      <a class="button" href="/tienda/">Seguir comprando</a>
+      {showRetry && <a class="button-secondary" href="/checkout/">Volver al checkout</a>}
+    </div>
+  </section>
+  {status === 'approved' && (
+    <script is:inline define:vars={{ token }}>
+      window.dataLayer?.push({
+        event: 'purchase',
+        ecommerce: {
+          transaction_id: token,
+          currency: 'CLP',
+          value: 0,
+        },
+      });
+    </script>
+  )}
+</BaseLayout>

@@ -1,0 +1,139 @@
+---
+import Announcement from '@/components/Announcement.astro';
+import Footer from '@/components/Footer.astro';
+import Header from '@/components/Header.astro';
+import StoreDock from '@/components/StoreDock.astro';
+import { organizationSchema } from '@/lib/seo';
+import '@fontsource/cormorant-garamond/400.css';
+import '@fontsource/cormorant-garamond/500.css';
+import '@fontsource/cormorant-garamond/400-italic.css';
+import '@fontsource/dm-sans/300.css';
+import '@fontsource/dm-sans/400.css';
+import '@fontsource/dm-sans/500.css';
+import '@fontsource/dm-sans/600.css';
+import '@fontsource/italiana/400.css';
+import '@/styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  noindex?: boolean;
+  schema?: Record<string, unknown> | Array<Record<string, unknown>>;
+}
+
+const {
+  title,
+  description,
+  canonical = new URL(Astro.url.pathname, Astro.site),
+  noindex = false,
+  schema,
+} = Astro.props;
+
+const pageTitle = title === 'Casa Trama' ? title : `${title} — Casa Trama`;
+const schemas = schema ? [organizationSchema].concat(schema as never) : [organizationSchema];
+const gtmId = import.meta.env.PUBLIC_GTM_ID;
+---
+
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#eee8dc" />
+    {noindex && <meta name="robots" content="noindex,follow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{pageTitle}</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_CL" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {schemas.map((item) => <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />)}
+    {gtmId && <script is:inline define:vars={{ gtmId }}>
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`;
+      document.head.appendChild(script);
+    </script>}
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <div class="site-chrome">
+      <Announcement />
+      <Header />
+    </div>
+    <main id="contenido">
+      <slot />
+    </main>
+    <Footer />
+    <StoreDock />
+    <div class="toast" id="cart-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script>
+      interface StoredCartLine {
+        productId: number;
+        sku?: string;
+        slug?: string;
+        name?: string;
+        price: number;
+        image?: string;
+        quantity: number;
+      }
+      const CART_KEY = 'casa-trama-cart-v1';
+      const readCart = (): StoredCartLine[] => {
+        try {
+          return JSON.parse(localStorage.getItem(CART_KEY) || '[]') as StoredCartLine[];
+        } catch {
+          return [];
+        }
+      };
+      const updateCount = () => {
+        const count = readCart().reduce((total, line) => total + Number(line.quantity || 0), 0);
+        document.querySelectorAll('[data-cart-count]').forEach((el) => {
+          el.textContent = String(count);
+          el.toggleAttribute('data-empty', count === 0);
+        });
+      };
+      const showToast = (message: string) => {
+        const toast = document.querySelector('#cart-toast');
+        if (!(toast instanceof HTMLElement)) return;
+        toast.textContent = message;
+        toast.classList.add('is-visible');
+        window.setTimeout(() => toast.classList.remove('is-visible'), 2400);
+      };
+      document.addEventListener('click', (event) => {
+        if (!(event.target instanceof Element)) return;
+        const button = event.target.closest('[data-add-to-cart]');
+        if (!(button instanceof HTMLButtonElement)) return;
+        const line: StoredCartLine = {
+          productId: Number(button.dataset.productId),
+          sku: button.dataset.sku,
+          slug: button.dataset.slug,
+          name: button.dataset.name,
+          price: Number(button.dataset.price),
+          image: button.dataset.image,
+          quantity: 1,
+        };
+        const cart = readCart();
+        const existing = cart.find((item) => item.productId === line.productId);
+        if (existing) existing.quantity += 1;
+        else cart.push(line);
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+        updateCount();
+        showToast(`${line.name ?? 'La pieza'} se agregó al carro`);
+        window.dataLayer?.push({
+          event: 'add_to_cart',
+          ecommerce: { currency: 'CLP', value: line.price, items: [{ item_id: line.sku, item_name: line.name, price: line.price, quantity: 1 }] },
+        });
+      });
+      document.addEventListener('astro:page-load', updateCount);
+      updateCount();
+    </script>
+  </body>
+</html>

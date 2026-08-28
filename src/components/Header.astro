@@ -1,0 +1,60 @@
+---
+const currentPath = Astro.url.pathname;
+const leftLinks = [
+  { href: '/colecciones/', label: 'Colecciones' },
+  { href: '/guias/fibras-nobles/', label: 'Materiales' },
+];
+const rightLinks = [
+  { href: '/casa-trama/', label: 'Nuestra curaduría' },
+  { href: '/tienda/', label: 'Buscar' },
+];
+const mobileLinks = [
+  { href: '/tienda/', label: 'Tienda' },
+  ...leftLinks,
+  { href: '/historias/', label: 'Historias' },
+  { href: '/casa-trama/', label: 'Nuestra curaduría' },
+  { href: '/carro/', label: 'Bolsa' },
+];
+---
+
+<header class="site-header">
+  <div class="header-inner">
+    <button class="menu-toggle" type="button" aria-controls="mobile-nav" aria-expanded="false">
+      <span></span><span></span><span class="sr-only">Abrir menú</span>
+    </button>
+
+    <nav class="desktop-nav" aria-label="Navegación principal">
+      {leftLinks.map((link) => (
+        <a href={link.href} aria-current={currentPath.startsWith(link.href) ? 'page' : undefined}>{link.label}</a>
+      ))}
+    </nav>
+
+    <a class="wordmark" href="/" aria-label="Casa Trama, inicio">CASA TRAMA</a>
+
+    <div class="header-actions">
+      {rightLinks.map((link) => (
+        <a class="header-text-link" href={link.href}>{link.label}</a>
+      ))}
+      <a class="header-text-link cart-link" href="/carro/" aria-label="Ver bolsa">
+        Bolsa <span data-cart-count data-empty>0</span>
+      </a>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Navegación móvil" hidden>
+    {mobileLinks.map((link, index) => <a href={link.href}><span>0{index + 1}</span>{link.label}</a>)}
+    <p>Materia, tacto y tiempo.</p>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.querySelector('.menu-toggle');
+  const nav = document.querySelector('#mobile-nav');
+  toggle?.addEventListener('click', () => {
+    if (!(nav instanceof HTMLElement) || !(toggle instanceof HTMLButtonElement)) return;
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    nav.hidden = open;
+    document.body.classList.toggle('menu-open', !open);
+  });
+</script>

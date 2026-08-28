@@ -1,0 +1,203 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProductCard from '@/components/ProductCard.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import { getProducts } from '@/lib/commerce';
+
+const products = (await getProducts()).slice(0, 3);
+---
+
+<BaseLayout
+  title="Casa Trama"
+  description="Textiles de fibras nobles elegidos por su textura, caída y permanencia. Casa Trama, desde el sur de Chile."
+>
+  <h1 class="sr-only">Casa Trama — Curaduría de fibras nobles</h1>
+  <section class="home-hero" aria-label="Curaduría de fibras">
+    <a class="hero-panel" href="/guias/fibras-nobles/">
+      <img
+        src="/images/hero-alpaca.webp"
+        alt="Textil de alpaca drapeado sobre una rama frente a un lago del sur"
+        width="1200"
+        height="1600"
+        fetchpriority="high"
+      />
+      <p class="hero-kicker">Exterior / 01</p>
+      <div class="hero-panel-copy">
+        <h2>Alpaca</h2>
+        <p>Abrigo ligero para habitar el paisaje</p>
+        <span class="hero-explore">Explorar <span aria-hidden="true">↗</span></span>
+      </div>
+    </a>
+    <a class="hero-panel" href="/tienda/">
+      <img
+        src="/images/hero-algodon.webp"
+        alt="Textil de algodón sobre una silla de madera en un interior silencioso"
+        width="1200"
+        height="1600"
+      />
+      <p class="hero-kicker">Tejido / 02</p>
+      <div class="hero-panel-copy">
+        <h2>Algodón</h2>
+        <p>Frescura silenciosa. Suavidad cotidiana.</p>
+        <span class="hero-explore">Explorar <span aria-hidden="true">↗</span></span>
+      </div>
+    </a>
+    <a class="hero-panel" href="/casa-trama/">
+      <img
+        src="/images/hero-materia.webp"
+        alt="Detalle macro de la textura de una fibra noble"
+        width="1200"
+        height="1600"
+      />
+      <p class="hero-kicker">Textura / 03</p>
+      <div class="hero-panel-copy">
+        <h2>Materia</h2>
+        <p>La belleza empieza en lo que se siente.</p>
+        <span class="hero-explore">Conocer <span aria-hidden="true">↗</span></span>
+      </div>
+    </a>
+  </section>
+
+  <section class="home-quote" aria-labelledby="home-quote-text">
+    <p class="home-quote-credit">Casa Trama / Materia consciente</p>
+    <p class="home-quote-text" id="home-quote-text">
+      Vestir también es recordar una<br />
+      sensación: la luz de la mañana, el<br />
+      aire frío y una fibra suave que<br />
+      acompaña sin imponerse.
+    </p>
+    <a class="home-quote-link" href="/casa-trama/">Conocer nuestra mirada /</a>
+  </section>
+
+  <section class="home-finds" aria-labelledby="home-finds-title">
+    <div class="home-finds-head">
+      <div>
+        <p class="home-finds-kicker">Hallazgos / Baby alpaca</p>
+        <h2 id="home-finds-title">Una forma más suave<br />de abrigarse.</h2>
+      </div>
+      <p class="home-finds-note">
+        Piezas seleccionadas por su tacto, caída y composición.<br />
+        Cada hallazgo está disponible en cantidades limitadas.
+      </p>
+    </div>
+    <div class="home-finds-media">
+      <figure class="home-finds-shot">
+        <img
+          src="/images/hallazgo-alpaca-01.webp"
+          alt="Mujer en el bosque con estola de baby alpaca en tono café"
+          width="1200"
+          height="1600"
+        />
+      </figure>
+      <figure class="home-finds-shot">
+        <img
+          src="/images/hallazgo-alpaca-02.webp"
+          alt="Detalle de estola de baby alpaca mostaza sobre un paisaje de bosque"
+          width="1200"
+          height="1600"
+        />
+      </figure>
+    </div>
+  </section>
+
+  <section class="home-gaze" aria-labelledby="home-gaze-title">
+    <div class="home-gaze-media">
+      <img
+        src="/images/hero-algodon.webp"
+        alt="Estola de algodón sobre una silla de madera, con luz de tarde"
+        width="1200"
+        height="1600"
+      />
+    </div>
+    <div class="home-gaze-copy">
+      <p class="home-gaze-kicker">La mirada Casa Trama</p>
+      <h2 id="home-gaze-title">Pequeños rituales<br />de materia.</h2>
+      <p>
+        Una estola sobre los hombros antes de salir. Algodón fresco cuando la tarde se vuelve lenta.
+        Elegimos piezas que hacen de lo cotidiano una experiencia íntima, delicada y duradera.
+      </p>
+      <a class="home-gaze-link" href="/casa-trama/">Descubrir nuestra curaduría /</a>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <div class="marquee-group">
+        <span>Textura que permanece</span>
+        <span class="marquee-dot"></span>
+        <span>Fibras nobles</span>
+        <span class="marquee-dot"></span>
+        <span>Hecho para sentir</span>
+        <span class="marquee-dot"></span>
+        <span>Desde el sur</span>
+        <span class="marquee-dot"></span>
+      </div>
+      <div class="marquee-group">
+        <span>Textura que permanece</span>
+        <span class="marquee-dot"></span>
+        <span>Fibras nobles</span>
+        <span class="marquee-dot"></span>
+        <span>Hecho para sentir</span>
+        <span class="marquee-dot"></span>
+        <span>Desde el sur</span>
+        <span class="marquee-dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <SectionHeading
+    eyebrow="Selección de temporada"
+    title="Piezas que hablan sin levantar la voz."
+    link={{ href: '/tienda/', label: 'Ver todas' }}
+  />
+  <section class="product-grid" aria-label="Productos destacados">
+    {products.map((product, index) => <ProductCard product={product} index={index} priority={index === 0} />)}
+  </section>
+
+  <section class="manifesto">
+    <div class="shell manifesto-grid">
+      <div class="manifesto-index">
+        <p class="eyebrow">La materia importa</p>
+        <span>02</span>
+      </div>
+      <div class="manifesto-copy">
+        <h2>No elegimos una pieza solo por cómo se ve. La elegimos por <em>cómo se siente.</em></h2>
+        <div class="manifesto-list">
+          <article>
+            <span>01</span><h3>Fibra</h3><p>Composición clara, tacto reconocible y materiales que envejecen con dignidad.</p>
+          </article>
+          <article>
+            <span>02</span><h3>Caída</h3><p>Movimiento natural, poco peso y una forma que acompaña sin imponerse.</p>
+          </article>
+          <article>
+            <span>03</span><h3>Tiempo</h3><p>Una relación más larga con menos piezas, mejor elegidas y bien cuidadas.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="editorial-story">
+    <div class="shell story-grid">
+      <div class="story-collage">
+        <img src="/images/bufanda-azul-niebla.webp" alt="Bufanda azul niebla sobre una silla de madera" width="1120" height="1400" loading="lazy" />
+        <img src="/images/bufanda-camel.webp" alt="Detalle de bufanda camel sobre lino crudo" width="1120" height="1400" loading="lazy" />
+      </div>
+      <div class="story-copy">
+        <p class="eyebrow">Casa Trama · Cuaderno 01</p>
+        <h2>El frío también puede ser una forma de calma.</h2>
+        <p class="lede">Cuando la mañana es lenta, la textura deja de ser adorno y se vuelve refugio.</p>
+        <p>Desde Puerto Varas observamos la luz, el bosque y las capas con que habitamos el sur. Esa experiencia guía nuestra selección de tonos, fibras y formas.</p>
+        <a class="text-link" href="/historias/">Leer nuestras historias <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="assurance">
+    <div class="shell assurance-grid">
+      <article><span>01</span><h3>Composición clara</h3><p>Sabes qué fibra estás llevando y cómo cuidarla.</p></article>
+      <article><span>02</span><h3>Despacho en Chile</h3><p>Información de costos y plazos antes de pagar.</p></article>
+      <article><span>03</span><h3>Compra acompañada</h3><p>Estamos disponibles si necesitas elegir con calma.</p></article>
+    </div>
+  </section>
+</BaseLayout>

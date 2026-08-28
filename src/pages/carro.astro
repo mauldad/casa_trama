@@ -1,0 +1,94 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Carro" description="Revisa las piezas seleccionadas antes de continuar al pago." noindex>
+  <section class="cart-page shell">
+    <p class="eyebrow">Tu selección</p>
+    <h1>Carro</h1>
+    <div class="cart-layout">
+      <div>
+        <div class="cart-lines" id="cart-lines"></div>
+        <div class="cart-empty" id="cart-empty" hidden>
+          <h2>Tu carro está esperando una textura.</h2>
+          <p>Explora piezas pensadas para acompañarte durante mucho tiempo.</p>
+          <a class="button-secondary" href="/tienda/">Ir a la tienda</a>
+        </div>
+      </div>
+      <aside class="cart-summary">
+        <p class="eyebrow">Resumen</p>
+        <h2>Tu pedido</h2>
+        <div class="summary-row"><span>Subtotal</span><span id="cart-subtotal">$0</span></div>
+        <div class="summary-row"><span>Despacho</span><span>Calculado al pagar</span></div>
+        <div class="summary-row summary-total"><strong>Total</strong><strong id="cart-total">$0</strong></div>
+        <a class="button" id="checkout-link" href="/checkout/">Continuar al pago <span aria-hidden="true">→</span></a>
+      </aside>
+    </div>
+  </section>
+  <script>
+    interface StoredCartLine {
+      productId: number;
+      sku: string;
+      name: string;
+      quantity: number;
+      price: number;
+      image: string;
+    }
+    const key = 'casa-trama-cart-v1';
+    const formatter = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+    const linesContainer = document.querySelector('#cart-lines');
+    const empty = document.querySelector('#cart-empty');
+    const checkout = document.querySelector('#checkout-link');
+    const render = () => {
+      const cart = JSON.parse(localStorage.getItem(key) || '[]') as StoredCartLine[];
+      if (!(linesContainer instanceof HTMLElement)) return;
+      linesContainer.replaceChildren();
+      cart.forEach((line) => {
+        const article = document.createElement('article');
+        article.className = 'cart-line';
+        const image = document.createElement('img');
+        image.src = line.image;
+        image.alt = '';
+        image.width = 120;
+        image.height = 150;
+        const details = document.createElement('div');
+        const title = document.createElement('h2');
+        title.textContent = line.name;
+        const unit = document.createElement('p');
+        unit.textContent = `${formatter.format(line.price)} · Cantidad ${line.quantity}`;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.dataset.remove = String(line.productId);
+        remove.textContent = 'Quitar';
+        const lineTotal = document.createElement('p');
+        lineTotal.textContent = formatter.format(line.price * line.quantity);
+        details.append(title, unit, remove);
+        article.append(image, details, lineTotal);
+        linesContainer.appendChild(article);
+      });
+      const total = cart.reduce((sum, line) => sum + line.price * line.quantity, 0);
+      const subtotal = document.querySelector('#cart-subtotal');
+      const totalElement = document.querySelector('#cart-total');
+      if (subtotal) subtotal.textContent = formatter.format(total);
+      if (totalElement) totalElement.textContent = formatter.format(total);
+      empty?.toggleAttribute('hidden', cart.length > 0);
+      checkout?.toggleAttribute('aria-disabled', cart.length === 0);
+      checkout?.classList.toggle('is-disabled', cart.length === 0);
+    };
+    linesContainer?.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element)) return;
+      const button = event.target.closest('[data-remove]');
+      if (!(button instanceof HTMLButtonElement)) return;
+      const id = Number(button.dataset.remove);
+      const cart = (JSON.parse(localStorage.getItem(key) || '[]') as StoredCartLine[]).filter((line) => line.productId !== id);
+      localStorage.setItem(key, JSON.stringify(cart));
+      render();
+      window.dispatchEvent(new Event('storage'));
+    });
+    checkout?.addEventListener('click', (event) => {
+      if (checkout.getAttribute('aria-disabled') === 'true') event.preventDefault();
+      else window.dataLayer?.push({ event: 'begin_checkout' });
+    });
+    render();
+  </script>
+</BaseLayout>
