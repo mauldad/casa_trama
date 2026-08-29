@@ -4,7 +4,7 @@ import ProductCard from '@/components/ProductCard.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import Trail from '@/components/Trail.astro';
 import Icon from '@/components/Icon.astro';
-import { getProduct, getProducts } from '@/lib/commerce';
+import { getProduct, getRelatedProducts } from '@/lib/commerce';
 import { formatCLP } from '@/lib/format';
 import { productSchema } from '@/lib/seo';
 
@@ -12,7 +12,7 @@ const { slug } = Astro.params;
 const product = slug ? await getProduct(slug) : undefined;
 if (!product) return Astro.redirect('/404');
 
-const related = (await getProducts()).filter((item) => item.id !== product.id).slice(0, 2);
+const related = await getRelatedProducts(product, 2);
 const canonical = new URL(`/producto/${product.slug}/`, Astro.site).href;
 const image = product.images[0];
 ---
@@ -66,7 +66,11 @@ const image = product.images[0];
         </details>
         <details>
           <summary>Cuidado</summary>
-          <ul>{product.care.map((item) => <li>{item}</li>)}</ul>
+          {product.care.length > 0 ? (
+            <ul>{product.care.map((item) => <li>{item}</li>)}</ul>
+          ) : (
+            <p>Las indicaciones de cuidado se publican desde WooCommerce en el atributo “Cuidado”.</p>
+          )}
         </details>
         <details>
           <summary>Despacho y cambios</summary>

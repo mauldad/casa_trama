@@ -1,0 +1,51 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Trail from '@/components/Trail.astro';
+import { getPost, getPosts } from '@/lib/wordpress';
+
+const { slug } = Astro.params;
+const story = slug ? await getPost(slug) : undefined;
+if (!story) return Astro.redirect('/404');
+
+const siblings = await getPosts();
+const canonical = new URL(`/historias/${story.slug}/`, Astro.site).href;
+const published = new Date(story.date).toLocaleDateString('es-CL', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout title={story.title} description={story.excerpt} canonical={canonical}>
+  <Trail
+    items={[
+      { label: 'Inicio', href: '/' },
+      { label: 'Historias', href: '/historias/' },
+      { label: story.title },
+    ]}
+  />
+  <article class="story-page shell">
+    <header class="story-page-header">
+      <p class="eyebrow">Cuaderno · {story.index}</p>
+      <h1>{story.title}</h1>
+      <p class="story-page-meta">{published}</p>
+    </header>
+    {story.image && (
+      <figure class="story-page-hero">
+        <img src={story.image.src} alt={story.image.alt || story.title} width="1400" height="900" />
+      </figure>
+    )}
+    <div class="prose story-prose" set:html={story.content} />
+    <footer class="story-page-footer">
+      <a class="text-link" href="/historias/">Volver a historias</a>
+      {
+        siblings.filter((item) => item.slug !== story.slug).slice(0, 2).map((item) => (
+          <a class="story-next" href={`/historias/${item.slug}/`}>
+            <span>{item.index}</span>
+            <strong>{item.title}</strong>
+          </a>
+        ))
+      }
+    </footer>
+  </article>
+</BaseLayout>

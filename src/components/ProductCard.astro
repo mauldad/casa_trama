@@ -12,7 +12,14 @@ const { product, priority = false, index = 0 } = Astro.props;
 const image = product.images[0];
 ---
 
-<article class="product-card" data-product-card data-category={product.categories.join(' ').toLowerCase()} data-price={product.price}>
+<article
+  class="product-card"
+  data-product-card
+  data-category={product.categories.join(' ').toLowerCase()}
+  data-category-slugs={(product.categorySlugs || product.categories.map((name) => name.toLowerCase().replace(/\s+/g, '-'))).join(' ')}
+  data-price={product.price}
+  data-featured={product.featured ? 'true' : 'false'}
+>
   <a class="product-media" href={`/producto/${product.slug}/`} aria-label={`Ver ${product.name}`}>
     {image ? (
       <img src={image.src} alt={image.alt} width="880" height="1100" loading={priority ? 'eager' : 'lazy'} fetchpriority={priority ? 'high' : 'auto'} />

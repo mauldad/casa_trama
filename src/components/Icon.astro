@@ -1,49 +1,33 @@
 ---
 interface Props {
-  name: 'arrow-ne' | 'arrow-right';
+  name: 'arrow-ne' | 'arrow-right' | 'close';
   class?: string;
   size?: number;
 }
 
 const { name, class: className = 'icon', size = 14 } = Astro.props;
+
+const paths: Record<Props['name'], string> = {
+  'arrow-ne': 'M4.5 11.5L11.5 4.5M11.5 4.5H6.25M11.5 4.5V9.75',
+  'arrow-right': 'M3 8h10M9.25 4.5 12.75 8 9.25 11.5',
+  close: 'M4 4l8 8M12 4l-8 8',
+};
 ---
 
-{
-  name === 'arrow-ne' ? (
-    <svg
-      class={className}
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d="M4.5 11.5L11.5 4.5M11.5 4.5H6.25M11.5 4.5V9.75"
-        stroke="currentColor"
-        stroke-width="1.15"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
-  ) : (
-    <svg
-      class={className}
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d="M3 8h10M9.25 4.5 12.75 8 9.25 11.5"
-        stroke="currentColor"
-        stroke-width="1.15"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
-  )
-}
+<svg
+  class={className}
+  width={size}
+  height={size}
+  viewBox="0 0 16 16"
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path
+    d={paths[name]}
+    stroke="currentColor"
+    stroke-width="1.15"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  ></path>
+</svg>

@@ -1,16 +1,60 @@
 # Integración WordPress + WooCommerce
 
-## Fuente de verdad
+## Modelo de contenido (diseño vs edición)
+
+Ver [`docs/CONTENT-MODEL.md`](CONTENT-MODEL.md): WP/Woo editan catálogo, categorías e historias; Astro conserva la coherencia visual.
+
+## Dominio CMS
+
+Fuente editorial y comercial (cuando WooCommerce esté activo):
+
+```text
+https://blog.casatrama.cl
+```
+
+Variables del storefront:
+
+```text
+PUBLIC_WP_URL=https://blog.casatrama.cl
+WOO_STORE_API_URL=https://blog.casatrama.cl/wp-json/wc/store/v1
+```
+
+`WP_GRAPHQL_URL` queda para más adelante: hoy el sitio no tiene WPGraphQL. Historias usan REST (`/wp-json/wp/v2/posts`).
+
+## Fuente de verdad comercial
 
 WooCommerce debe ser la única fuente de verdad para SKU, precio, impuesto, descuento, variante, stock y pedido. Neon puede almacenar eventos técnicos y proyecciones mínimas, pero no un inventario alternativo.
 
-## Plugins/capacidades sugeridas
+## Checklist Hostinger (activar catálogo real)
 
-- WooCommerce actualizado y HPOS validado.
-- WPGraphQL.
-- ACF Pro + WPGraphQL for ACF, o bloques Gutenberg propios con esquema estable.
-- Plugin SEO compatible con WPGraphQL si la metadata editorial se administra en WordPress.
-- Configuración CORS restringida a los dominios reales de Casa Trama.
+Hoy `blog.casatrama.cl` es un WordPress fresco **sin WooCommerce**. Hasta que exista Store API, Astro sigue con el catálogo mock de `src/data/products.ts`.
+
+1. En el panel Hostinger / WP Admin, instalar y activar **WooCommerce** (Hostinger expone onboarding en `hostinger-easy-onboarding/v1/woo-setup`).
+2. Configurar tienda: país **Chile**, moneda **CLP**, impuestos según operación real.
+3. Confirmar que Store API responde:
+   ```bash
+   curl -sI "https://blog.casatrama.cl/wp-json/wc/store/v1/products"
+   ```
+   Debe ser HTTP 200 (no 404).
+4. Crear 1–3 productos de prueba con SKU, precio, stock, galería y slug limpio.
+5. Revisar CORS si el storefront en otro dominio consume el carro desde el navegador; para mutaciones sensibles preferir BFF Astro.
+6. En Netlify, setear las mismas variables (`PUBLIC_WP_URL`, `WOO_STORE_API_URL`, `SITE_URL=https://casa-trama.netlify.app`).
+7. Redeploy: `src/lib/commerce.ts` deja el mock automáticamente cuando Store API responde OK.
+
+## Lectura editorial (activa)
+
+`src/lib/wordpress.ts` consulta:
+
+```text
+GET {PUBLIC_WP_URL}/wp-json/wp/v2/posts
+```
+
+Páginas:
+
+- `/historias/` — listado
+- `/historias/[slug]/` — detalle
+
+Si la API falla o no hay posts, usa historias de muestra (mismo patrón que el catálogo).
 
 ## Lectura del catálogo
 
@@ -21,6 +65,14 @@ GET {WOO_STORE_API_URL}/products?per_page=24
 ```
 
 Si la URL no existe o la API falla durante desarrollo, usa `src/data/products.ts`. En producción puede decidirse que un fallo muestre la última caché válida en vez del catálogo mock.
+
+## Plugins/capacidades sugeridas
+
+- WooCommerce actualizado y HPOS validado.
+- WPGraphQL (opcional, fase posterior).
+- ACF Pro + WPGraphQL for ACF, o bloques Gutenberg propios con esquema estable.
+- Plugin SEO compatible si la metadata editorial se administra en WordPress.
+- Configuración CORS restringida a los dominios reales de Casa Trama (`casa-trama.netlify.app`, `casatrama.cl`).
 
 ## Modelo editorial mínimo
 
@@ -72,6 +124,8 @@ Flujo recomendado:
 9. Enviar correo y `purchase` una sola vez.
 
 La página de retorno del proveedor no es evidencia suficiente de pago.
+
+Hoy el drawer de bolsa usa `localStorage` como puente temporal hasta conectar Cart-Token.
 
 ## SEO/GEO/AEO
 

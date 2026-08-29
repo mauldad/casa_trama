@@ -7,7 +7,7 @@ interface Window {
 interface ImportMetaEnv {
   readonly SITE_URL: string;
   readonly PUBLIC_WP_URL: string;
-  readonly WP_GRAPHQL_URL: string;
+  readonly WP_GRAPHQL_URL?: string;
   readonly WOO_STORE_API_URL: string;
   readonly PUBLIC_GTM_ID: string;
   readonly RESEND_API_KEY: string;

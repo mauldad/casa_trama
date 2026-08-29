@@ -1,18 +1,11 @@
 ---
 import Announcement from '@/components/Announcement.astro';
+import CartDrawer from '@/components/CartDrawer.astro';
 import Footer from '@/components/Footer.astro';
 import Header from '@/components/Header.astro';
 import StoreDock from '@/components/StoreDock.astro';
 import { organizationSchema } from '@/lib/seo';
-import '@fontsource/cormorant-garamond/300.css';
-import '@fontsource/cormorant-garamond/400.css';
-import '@fontsource/cormorant-garamond/500.css';
-import '@fontsource/cormorant-garamond/300-italic.css';
-import '@fontsource/cormorant-garamond/400-italic.css';
-import '@fontsource/cormorant-garamond/500-italic.css';
-import '@fontsource/instrument-sans/400.css';
-import '@fontsource/instrument-sans/500.css';
-import '@fontsource/instrument-sans/600.css';
+import '@/styles/fonts.css';
 import '@/styles/global.css';
 
 interface Props {
@@ -75,7 +68,7 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
     </main>
     <Footer />
     <StoreDock />
-    <div class="toast" id="cart-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <CartDrawer />
     <script>
       interface StoredCartLine {
         productId: number;
@@ -86,7 +79,18 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
         image?: string;
         quantity: number;
       }
+
       const CART_KEY = 'casa-trama-cart-v1';
+      const formatCLP = (value: number) =>
+        new Intl.NumberFormat('es-CL', {
+          style: 'currency',
+          currency: 'CLP',
+          maximumFractionDigits: 0,
+        }).format(value);
+
+      const drawer = () => document.querySelector('#cart-drawer');
+      const panel = () => document.querySelector('.cart-drawer-panel');
+
       const readCart = (): StoredCartLine[] => {
         try {
           return JSON.parse(localStorage.getItem(CART_KEY) || '[]') as StoredCartLine[];
@@ -94,6 +98,11 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
           return [];
         }
       };
+
+      const writeCart = (cart: StoredCartLine[]) => {
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      };
+
       const updateCount = () => {
         const count = readCart().reduce((total, line) => total + Number(line.quantity || 0), 0);
         document.querySelectorAll('[data-cart-count]').forEach((el) => {
@@ -101,17 +110,96 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
           el.toggleAttribute('data-empty', count === 0);
         });
       };
-      const showToast = (message: string) => {
-        const toast = document.querySelector('#cart-toast');
-        if (!(toast instanceof HTMLElement)) return;
-        toast.textContent = message;
-        toast.classList.add('is-visible');
-        window.setTimeout(() => toast.classList.remove('is-visible'), 2400);
+
+      const renderDrawer = (options: { highlight?: boolean } = {}) => {
+        const cart = readCart();
+        const linesEl = document.querySelector('#cart-drawer-lines');
+        const emptyEl = document.querySelector('#cart-drawer-empty');
+        const footerEl = document.querySelector('#cart-drawer-footer');
+        const subtotalEl = document.querySelector('#cart-drawer-subtotal');
+        const noteEl = document.querySelector('#cart-drawer-note');
+        if (!(linesEl instanceof HTMLElement)) return;
+
+        linesEl.innerHTML = '';
+        cart.forEach((line) => {
+          const article = document.createElement('article');
+          article.className = 'cart-drawer-line';
+          article.innerHTML = `
+            <a class="cart-drawer-thumb" href="/producto/${line.slug ?? ''}/">
+              ${line.image ? `<img src="${line.image}" alt="" width="96" height="120" />` : '<span class="material-placeholder tone-natural"></span>'}
+            </a>
+            <div class="cart-drawer-line-copy">
+              <h3><a href="/producto/${line.slug ?? ''}/">${line.name ?? 'Pieza'}</a></h3>
+              <p>${formatCLP(line.price)} · ${line.quantity} u.</p>
+              <button type="button" data-remove-cart="${line.productId}">Quitar</button>
+            </div>
+            <p class="cart-drawer-line-total">${formatCLP(line.price * line.quantity)}</p>
+          `;
+          linesEl.appendChild(article);
+        });
+
+        const total = cart.reduce((sum, line) => sum + line.price * line.quantity, 0);
+        if (subtotalEl) subtotalEl.textContent = formatCLP(total);
+        emptyEl?.toggleAttribute('hidden', cart.length > 0);
+        footerEl?.toggleAttribute('hidden', cart.length === 0);
+        if (noteEl instanceof HTMLElement) {
+          noteEl.hidden = !options.highlight;
+          if (options.highlight) {
+            window.setTimeout(() => {
+              noteEl.hidden = true;
+            }, 3200);
+          }
+        }
       };
+
+      const openCart = (options: { highlight?: boolean } = {}) => {
+        const root = drawer();
+        if (!(root instanceof HTMLElement)) return;
+        renderDrawer(options);
+        root.hidden = false;
+        requestAnimationFrame(() => root.classList.add('is-open'));
+        document.body.classList.add('cart-open');
+        const dialog = panel();
+        if (dialog instanceof HTMLElement) dialog.focus();
+      };
+
+      const closeCart = () => {
+        const root = drawer();
+        if (!(root instanceof HTMLElement)) return;
+        root.classList.remove('is-open');
+        document.body.classList.remove('cart-open');
+        window.setTimeout(() => {
+          if (!root.classList.contains('is-open')) root.hidden = true;
+        }, 420);
+      };
+
       document.addEventListener('click', (event) => {
         if (!(event.target instanceof Element)) return;
+
+        const openTrigger = event.target.closest('[data-open-cart]');
+        if (openTrigger instanceof HTMLElement) {
+          event.preventDefault();
+          openCart();
+          return;
+        }
+
+        if (event.target.closest('[data-close-cart]')) {
+          closeCart();
+          return;
+        }
+
+        const remove = event.target.closest('[data-remove-cart]');
+        if (remove instanceof HTMLElement) {
+          const id = Number(remove.getAttribute('data-remove-cart'));
+          writeCart(readCart().filter((line) => line.productId !== id));
+          updateCount();
+          renderDrawer();
+          return;
+        }
+
         const button = event.target.closest('[data-add-to-cart]');
-        if (!(button instanceof HTMLButtonElement)) return;
+        if (!(button instanceof HTMLButtonElement) || button.disabled) return;
+
         const line: StoredCartLine = {
           productId: Number(button.dataset.productId),
           sku: button.dataset.sku,
@@ -125,14 +213,23 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
         const existing = cart.find((item) => item.productId === line.productId);
         if (existing) existing.quantity += 1;
         else cart.push(line);
-        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+        writeCart(cart);
         updateCount();
-        showToast(`${line.name ?? 'La pieza'} se agregó al carro`);
+        openCart({ highlight: true });
         window.dataLayer?.push({
           event: 'add_to_cart',
-          ecommerce: { currency: 'CLP', value: line.price, items: [{ item_id: line.sku, item_name: line.name, price: line.price, quantity: 1 }] },
+          ecommerce: {
+            currency: 'CLP',
+            value: line.price,
+            items: [{ item_id: line.sku, item_name: line.name, price: line.price, quantity: 1 }],
+          },
         });
       });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeCart();
+      });
+
       document.addEventListener('astro:page-load', updateCount);
       updateCount();
     </script>

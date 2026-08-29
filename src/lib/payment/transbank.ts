@@ -1,9 +1,7 @@
-import {
-  IntegrationApiKeys,
-  IntegrationCommerceCodes,
-  WebpayPlus,
-} from 'transbank-sdk';
+import transbank from 'transbank-sdk';
 import type { NormalizedPaymentStatus } from '@/types/payment';
+
+const { IntegrationApiKeys, IntegrationCommerceCodes, WebpayPlus } = transbank;
 
 export function createWebpayTransaction() {
   const env = import.meta.env.TRANSBANK_ENV ?? 'integration';

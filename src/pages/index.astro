@@ -4,8 +4,23 @@ import ProductCard from '@/components/ProductCard.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import Icon from '@/components/Icon.astro';
 import { getProducts } from '@/lib/commerce';
+import { getLatestPost } from '@/lib/wordpress';
 
-const products = (await getProducts()).slice(0, 3);
+const products = await getProducts({ featured: true });
+const latestStory = await getLatestPost();
+
+const marqueePhrases = [
+  'El tacto antes que la forma',
+  'Calor suave sobre la piel',
+  'Fibras que respiran',
+  'Luz lenta de la mañana',
+  'Caída silenciosa',
+  'Materia que se recuerda',
+  'Aire frío, tejido cálido',
+  'Permanencia con suavidad',
+  'Desde el sur, sin prisa',
+  'Textura que acompaña',
+];
 ---
 
 <BaseLayout
@@ -127,15 +142,9 @@ const products = (await getProducts()).slice(0, 3);
         [0, 1].map(() => (
           <div class="marquee-group">
             {
-              Array.from({ length: 4 }, () => (
+              [...marqueePhrases, ...marqueePhrases].map((phrase) => (
                 <>
-                  <span>Textura que permanece</span>
-                  <span class="marquee-dot"></span>
-                  <span>Fibras nobles</span>
-                  <span class="marquee-dot"></span>
-                  <span>Hecho para sentir</span>
-                  <span class="marquee-dot"></span>
-                  <span>Desde el sur</span>
+                  <span>{phrase}</span>
                   <span class="marquee-dot"></span>
                 </>
               ))
@@ -181,15 +190,23 @@ const products = (await getProducts()).slice(0, 3);
   <section class="editorial-story">
     <div class="shell story-grid">
       <div class="story-collage">
-        <img src="/images/bufanda-azul-niebla.webp" alt="Bufanda azul niebla sobre una silla de madera" width="1120" height="1400" loading="lazy" />
+        <img
+          src={latestStory?.image?.src || '/images/bufanda-azul-niebla.webp'}
+          alt={latestStory?.image?.alt || 'Bufanda azul niebla sobre una silla de madera'}
+          width="1120"
+          height="1400"
+          loading="lazy"
+        />
         <img src="/images/bufanda-camel.webp" alt="Detalle de bufanda camel sobre lino crudo" width="1120" height="1400" loading="lazy" />
       </div>
       <div class="story-copy">
-        <p class="eyebrow">Casa Trama · Cuaderno 01</p>
-        <h2>El frío también puede ser una forma de calma.</h2>
-        <p class="lede">Cuando la mañana es lenta, la textura deja de ser adorno y se vuelve refugio.</p>
+        <p class="eyebrow">Casa Trama · Cuaderno {latestStory?.index || '01'}</p>
+        <h2>{latestStory?.title || 'El frío también puede ser una forma de calma.'}</h2>
+        <p class="lede">{latestStory?.excerpt || 'Cuando la mañana es lenta, la textura deja de ser adorno y se vuelve refugio.'}</p>
         <p>Desde Puerto Varas observamos la luz, el bosque y las capas con que habitamos el sur. Esa experiencia guía nuestra selección de tonos, fibras y formas.</p>
-        <a class="text-link" href="/historias/">Leer nuestras historias <Icon name="arrow-ne" size={11} /></a>
+        <a class="text-link" href={latestStory ? `/historias/${latestStory.slug}/` : '/historias/'}>
+          Leer {latestStory ? 'esta historia' : 'nuestras historias'} <Icon name="arrow-ne" size={11} />
+        </a>
       </div>
     </div>
   </section>

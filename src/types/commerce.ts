@@ -28,6 +28,7 @@ export interface Product {
   featured: boolean;
   tone: ProductTone;
   categories: string[];
+  categorySlugs?: string[];
   images: ProductImage[];
   attributes: ProductAttribute[];
   care: string[];
@@ -43,6 +44,15 @@ export interface CartLine {
   image: ProductImage;
 }
 
+export interface StoreApiCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  parent: number;
+  count: number;
+}
+
 export interface StoreApiProduct {
   id: number;
   name: string;
@@ -51,6 +61,7 @@ export interface StoreApiProduct {
   short_description: string;
   description: string;
   is_in_stock: boolean;
+  is_featured?: boolean;
   low_stock_remaining: number | null;
   prices: {
     currency_code: string;
@@ -64,6 +75,7 @@ export interface StoreApiProduct {
     thumbnail: string;
   }>;
   categories: Array<{ id: number; name: string; slug: string }>;
+  tags?: Array<{ id: number; name: string; slug: string }>;
   attributes: Array<{
     id: number;
     name: string;

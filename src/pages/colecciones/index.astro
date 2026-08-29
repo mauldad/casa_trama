@@ -1,11 +1,41 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ProductCard from '@/components/ProductCard.astro';
-import { getProducts } from '@/lib/commerce';
-const products = await getProducts();
+import { getCategories, getProducts } from '@/lib/commerce';
+import { stripHtml } from '@/lib/format';
+
+const categories = await getCategories();
+const collections = await Promise.all(
+  categories.map(async (category) => ({
+    ...category,
+    description: stripHtml(category.description || ''),
+    products: await getProducts({ category: category.slug }),
+  })),
+);
 ---
+
 <BaseLayout title="Colecciones" description="Colecciones Casa Trama organizadas por fibra, tono y forma de uso.">
-  <header class="page-hero shell"><p class="eyebrow">Por materia y estación</p><h1>Colecciones</h1><div class="page-hero-footer"><p>Una selección pequeña y consciente de textiles para el clima, la pausa y la vida cotidiana.</p><span class="page-count">01</span></div></header>
-  <section class="section-heading shell"><p class="eyebrow">Colección 01</p><h2>La luz del sur</h2></section>
-  <section class="product-grid">{products.map((product, index) => <ProductCard product={product} index={index} />)}</section>
+  <header class="page-hero shell">
+    <p class="eyebrow">Por materia y estación</p>
+    <h1>Colecciones</h1>
+    <div class="page-hero-footer">
+      <p>Una selección pequeña y consciente de textiles para el clima, la pausa y la vida cotidiana.</p>
+      <span class="page-count">{String(collections.length).padStart(2, '0')}</span>
+    </div>
+  </header>
+
+  {collections.map((collection, index) => (
+    <section class="collection-block" id={collection.slug}>
+      <div class="section-heading shell">
+        <p class="eyebrow">Colección {String(index + 1).padStart(2, '0')}</p>
+        <h2>{collection.name}</h2>
+        {collection.description && <p class="collection-intro">{collection.description}</p>}
+      </div>
+      <section class="product-grid" aria-label={`Productos de ${collection.name}`}>
+        {collection.products.map((product, productIndex) => (
+          <ProductCard product={product} index={productIndex} />
+        ))}
+      </section>
+    </section>
+  ))}
 </BaseLayout>

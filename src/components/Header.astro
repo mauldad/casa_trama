@@ -35,7 +35,12 @@ const mobileLinks = [
       {rightLinks.map((link) => (
         <a class="header-text-link" href={link.href}>{link.label}</a>
       ))}
-      <a class="header-text-link cart-link" href="/carro/" aria-label="Ver bolsa">
+      <a
+        class="header-text-link cart-link"
+        href="/carro/"
+        aria-label="Ver bolsa"
+        data-open-cart
+      >
         Bolsa <span data-cart-count data-empty>0</span>
       </a>
     </div>

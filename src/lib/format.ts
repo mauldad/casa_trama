@@ -5,5 +5,14 @@ export const formatCLP = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
+const decodeEntities = (value: string) =>
+  value
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;|&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+
 export const stripHtml = (html: string) =>
-  html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  decodeEntities(html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim());

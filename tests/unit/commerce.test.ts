@@ -54,4 +54,31 @@ describe('normalizeStoreProduct', () => {
     const product = normalizeStoreProduct({ ...sampleProduct, is_in_stock: false });
     expect(product.stockStatus).toBe('outofstock');
   });
+
+  it('mapea cuidado, featured y tone desde atributos/etiquetas', () => {
+    const product = normalizeStoreProduct({
+      ...sampleProduct,
+      tags: [{ id: 1, name: 'Destacado', slug: 'destacado' }],
+      attributes: [
+        ...sampleProduct.attributes,
+        {
+          id: 2,
+          name: 'Color',
+          terms: [{ id: 2, name: 'Azul niebla', slug: 'azul-niebla' }],
+        },
+        {
+          id: 3,
+          name: 'Cuidado',
+          terms: [
+            { id: 3, name: 'Lavar a mano', slug: 'lavar-a-mano' },
+            { id: 4, name: 'Secar plana', slug: 'secar-plana' },
+          ],
+        },
+      ],
+    });
+    expect(product.featured).toBe(true);
+    expect(product.tone).toBe('mist');
+    expect(product.care).toEqual(['Lavar a mano', 'Secar plana']);
+    expect(product.attributes.some((item) => item.name === 'Cuidado')).toBe(false);
+  });
 });

@@ -23,7 +23,7 @@
 | 2 | Proveedor de pago P0 | Casa Trama | **Webpay Plus ✓** |
 | 3 | Reglas de despacho, cobertura y tarifas | Casa Trama | **Pospuesto** |
 | 4 | Boleta/factura e integración tributaria | Casa Trama + legal | Pendiente |
-| 5 | Hosting WordPress (`cms.casatrama.cl`) | Técnico | Pendiente |
+| 5 | Hosting WordPress (`blog.casatrama.cl`) | Técnico | Listo (REST); WooCommerce pendiente |
 | 6 | Catálogo definitivo, variantes y stock | Casa Trama | **Pospuesto** |
 | 7 | Cupones y promociones | Casa Trama | Pendiente |
 | 8 | Cambios, devoluciones y reembolsos | Casa Trama | Pendiente |

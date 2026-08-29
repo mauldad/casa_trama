@@ -1,23 +1,25 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getPosts } from '@/lib/wordpress';
 
-const stories = [
-  { index: '01', title: 'El frío como una forma de calma', description: 'Notas sobre capas, luz de mañana y la experiencia de habitar el sur.' },
-  { index: '02', title: 'Cómo reconocer una fibra que vale la pena', description: 'Tacto, recuperación, brillo y composición: cuatro señales antes de elegir.' },
-  { index: '03', title: 'Cuidar también es una manera de conservar', description: 'Menos lavados, agua fría y secado correcto para acompañar la vida de una pieza.' },
-];
+const stories = await getPosts();
 ---
 
 <BaseLayout title="Historias" description="Historias sobre fibras, texturas, cuidado y formas de habitar el sur de Chile.">
   <header class="page-hero shell">
     <p class="eyebrow">Cuaderno Casa Trama</p>
     <h1>Historias</h1>
-    <div class="page-hero-footer"><p>Ideas para mirar más lento, elegir mejor y cuidar lo que ya forma parte de tu vida.</p><span class="page-count">03</span></div>
+    <div class="page-hero-footer">
+      <p>Ideas para mirar más lento, elegir mejor y cuidar lo que ya forma parte de tu vida.</p>
+      <span class="page-count">{String(stories.length).padStart(2, '0')}</span>
+    </div>
   </header>
   <section class="story-index shell">
     {stories.map((story) => (
-      <a class="story-item" href="/guias/fibras-nobles/">
-        <span>{story.index}</span><h2>{story.title}</h2><p>{story.description}</p>
+      <a class="story-item" href={`/historias/${story.slug}/`}>
+        <span>{story.index}</span>
+        <h2>{story.title}</h2>
+        <p>{story.excerpt}</p>
       </a>
     ))}
   </section>

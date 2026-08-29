@@ -6,7 +6,11 @@ const path = Astro.url.pathname;
   <a href="/tienda/" aria-current={path.startsWith('/tienda') ? 'page' : undefined}>
     <span>Tienda</span>
   </a>
-  <a href="/carro/" aria-current={path.startsWith('/carro') || path.startsWith('/checkout') ? 'page' : undefined}>
+  <a
+    href="/carro/"
+    aria-current={path.startsWith('/carro') || path.startsWith('/checkout') ? 'page' : undefined}
+    data-open-cart
+  >
     <span>Bolsa</span>
     <em data-cart-count data-empty>0</em>
   </a>
