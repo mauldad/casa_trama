@@ -157,20 +157,23 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
         if (!(root instanceof HTMLElement)) return;
         renderDrawer(options);
         root.hidden = false;
-        requestAnimationFrame(() => root.classList.add('is-open'));
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => root.classList.add('is-open'));
+        });
         document.body.classList.add('cart-open');
         const dialog = panel();
-        if (dialog instanceof HTMLElement) dialog.focus();
+        if (dialog instanceof HTMLElement) dialog.focus({ preventScroll: true });
       };
 
       const closeCart = () => {
         const root = drawer();
         if (!(root instanceof HTMLElement)) return;
+        if (!root.classList.contains('is-open') && root.hidden) return;
         root.classList.remove('is-open');
         document.body.classList.remove('cart-open');
         window.setTimeout(() => {
           if (!root.classList.contains('is-open')) root.hidden = true;
-        }, 420);
+        }, 620);
       };
 
       document.addEventListener('click', (event) => {

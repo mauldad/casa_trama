@@ -1,0 +1,238 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { getProducts } from '@/lib/commerce';
+import { formatCLP } from '@/lib/format';
+
+const products = await getProducts({ featured: true });
+const piece = products[0];
+const canonical = new URL('/pieza/', Astro.site).href;
+
+const composition =
+  piece?.attributes.find((item) => /composici/i.test(item.name))?.value || 'Fibra noble seleccionada';
+const origin =
+  piece?.attributes.find((item) => /origen/i.test(item.name))?.value || 'Selección andina';
+const lot = piece ? `CT-${String(piece.id).padStart(4, '0')}` : 'CT-0000';
+
+const stages = [
+  {
+    index: '01',
+    place: 'Altiplano',
+    moment: 'Origen',
+    icon: 'alpaca' as const,
+    title: 'La fibra nace lejos del ruido',
+    body: 'Baby alpaca de altura: ligera, cálida, con memoria de viento frío. Aquí empieza la trazabilidad — en el animal, el clima y una cosecha que no se apresura.',
+    sense: 'Calidez seca · Vellón fino',
+    image: '/images/altiplano-origen.webp',
+    imageAlt: 'Altiplano andino al amanecer con alpacas en la meseta',
+  },
+  {
+    index: '02',
+    place: 'Taller',
+    moment: 'Hilado',
+    icon: 'leaf' as const,
+    title: 'La trama toma forma',
+    body: 'El hilo se construye con paciencia. Cada pasada define caída, recuperación y el silencio visual de la pieza. No hay atajo: la nobleza se siente en la densidad justa.',
+    sense: 'Tensión suave · Hilo continuo',
+    image: '/images/altiplano-hilado.webp',
+    imageAlt: 'Hilado de alpaca con luz de altura y paisaje andino al fondo',
+  },
+  {
+    index: '03',
+    place: 'Meseta',
+    moment: 'Tono',
+    icon: 'touch' as const,
+    title: 'El color llega como luz, no como grito',
+    body: 'Buscamos un ocre que tome la mañana sin brillar de más. El tono debe dialogar con piedra, madera y piel — nunca competir con ellas.',
+    sense: 'Ocre mate · Luz lenta',
+    image: '/images/altiplano-meseta.webp',
+    imageAlt: 'Meseta altiplánica en tonos ocre y piedra',
+  },
+  {
+    index: '04',
+    place: 'Fibra',
+    moment: 'Materia',
+    icon: 'guide' as const,
+    title: 'El vellón guarda la memoria del frío',
+    body: 'Antes de la curaduría, la materia se reconoce al tacto: finura, recuperación, calidez seca. Solo esa fibra —la que abriga sin imponer— sigue el camino hacia Casa Trama.',
+    sense: 'Tacto · Densidad justa',
+    image: '/images/altiplano-vellon.webp',
+    imageAlt: 'Detalle de vellón de baby alpaca bajo luz natural',
+  },
+  {
+    index: '05',
+    place: 'Puerto Varas',
+    moment: 'Curaduría',
+    icon: 'time' as const,
+    title: 'Casa Trama elige o deja pasar',
+    body: 'Llega al sur. Tocamos, medimos, vestimos. Si no abriga sin imponer, no entra al catálogo. Solo las piezas que superan ese filtro reciben lote y quedan en espera.',
+    sense: 'Criterio · Serie mínima',
+    image: '/images/hallazgo-alpaca-01.webp',
+    imageAlt: 'Pieza de alpaca en el sur de Chile',
+  },
+  {
+    index: '06',
+    place: 'Tus manos',
+    moment: 'Permanencia',
+    icon: 'touch' as const,
+    title: 'La historia continúa en el cuerpo',
+    body: 'Cuando la pieza te encuentra, el seguimiento no termina: empieza el uso. Agua fría, menos lavados, secado paciente. Así la trama permanece — y el relato también.',
+    sense: 'Uso cotidiano · Cuidado',
+    image: piece?.images[0]?.src || '/images/hallazgo-alpaca-02.webp',
+    imageAlt: piece?.images[0]?.alt || 'Pieza lista para acompañar',
+  },
+];
+---
+
+<BaseLayout
+  title={piece ? `Trazabilidad · ${piece.name}` : 'Trazabilidad de una pieza'}
+  description="Seguimiento del proceso de una pieza Casa Trama: desde la fibra hasta tus manos, contado como experiencia."
+  canonical={canonical}
+>
+  <article class="trace" data-trace>
+    <header class="trace-hero">
+      <div class="trace-hero-veil" aria-hidden="true"></div>
+      <img
+        class="trace-hero-image"
+        src="/images/altiplano-origen.webp"
+        alt=""
+        width="1400"
+        height="1750"
+        fetchpriority="high"
+      />
+      <div class="shell trace-hero-inner">
+        <p class="trace-kicker">Trazabilidad · Desde el altiplano</p>
+        <h1>
+          {
+            piece ? (
+              <>
+                Cómo {piece.name}
+                <em> llega a tus manos</em>
+              </>
+            ) : (
+              <>Cómo una pieza llega a tus manos</>
+            )
+          }
+        </h1>
+        <p class="trace-lede">
+          Un timeline que se siente: viento de altura, fibra, tono y curaduría hasta el instante en que
+          la pieza deja de ser hallazgo y se vuelve compañía.
+        </p>
+        <dl class="trace-passport">
+          <div>
+            <dt>Lote</dt>
+            <dd>{lot}</dd>
+          </div>
+          <div>
+            <dt>SKU</dt>
+            <dd>{piece?.sku || '—'}</dd>
+          </div>
+          <div>
+            <dt>Fibra</dt>
+            <dd>{composition}</dd>
+          </div>
+          <div>
+            <dt>Origen</dt>
+            <dd>{origin}</dd>
+          </div>
+        </dl>
+        <a class="trace-scroll" href="#proceso">
+          Seguir el proceso <Icon name="arrow-right" size={12} />
+        </a>
+      </div>
+    </header>
+
+    <section class="trace-process shell" id="proceso" aria-labelledby="trace-process-title">
+      <div class="trace-process-head">
+        <p class="eyebrow">Proceso</p>
+        <h2 id="trace-process-title">Del altiplano a tus manos.</h2>
+      </div>
+
+      <ol class="trace-timeline">
+        {
+          stages.map((stage, i) => (
+            <li class:list={['trace-step', i % 2 === 1 && 'trace-step--flip']} data-trace-step>
+              <div class="trace-step-rail" aria-hidden="true">
+                <span class="trace-step-node">
+                  <Icon name={stage.icon} size={18} />
+                </span>
+              </div>
+              <div class="trace-step-copy">
+                <p class="trace-step-meta">
+                  <span>{stage.index}</span>
+                  <span>{stage.place}</span>
+                  <span>{stage.moment}</span>
+                </p>
+                <h3>{stage.title}</h3>
+                <p>{stage.body}</p>
+                <p class="trace-step-sense">{stage.sense}</p>
+              </div>
+              <figure class="trace-step-media">
+                <img src={stage.image} alt={stage.imageAlt} width="900" height="1100" loading="lazy" />
+              </figure>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    {
+      piece && (
+        <section class="trace-arrive" aria-labelledby="trace-arrive-title">
+          <div class="shell trace-arrive-inner">
+            <p class="eyebrow">Destino</p>
+            <h2 id="trace-arrive-title">Ahora la pieza puede encontrarte.</h2>
+            <p class="trace-arrive-lede">
+              Stock limitado. Si esta unidad encuentra a su persona, el lote se cierra y el relato
+              sigue en quien la lleva.
+            </p>
+            <div class="trace-arrive-card">
+              {piece.images[0] && (
+                <img
+                  src={piece.images[0].src}
+                  alt={piece.images[0].alt || piece.name}
+                  width="720"
+                  height="900"
+                />
+              )}
+              <div>
+                <p class="trace-arrive-label">{piece.eyebrow}</p>
+                <h3>{piece.name}</h3>
+                <p>{piece.shortDescription}</p>
+                <p class="trace-arrive-price">{formatCLP(piece.price)}</p>
+                <div class="action-row">
+                  <a class="button" href={`/producto/${piece.slug}/`}>
+                    Continuar con esta pieza <Icon name="arrow-right" size={14} />
+                  </a>
+                  <a class="button-secondary" href="/tienda/">
+                    Ver todos los hallazgos
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )
+    }
+  </article>
+</BaseLayout>
+
+<script>
+  const steps = document.querySelectorAll<HTMLElement>('[data-trace-step]');
+  if (steps.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.28, rootMargin: '0px 0px -8% 0px' },
+    );
+    steps.forEach((step) => observer.observe(step));
+  } else {
+    steps.forEach((step) => step.classList.add('is-visible'));
+  }
+</script>

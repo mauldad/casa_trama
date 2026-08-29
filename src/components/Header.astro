@@ -1,4 +1,6 @@
 ---
+import Icon from '@/components/Icon.astro';
+
 const currentPath = Astro.url.pathname;
 const leftLinks = [
   { href: '/colecciones/', label: 'Colecciones' },
@@ -19,8 +21,9 @@ const mobileLinks = [
 
 <header class="site-header">
   <div class="header-inner">
-    <button class="menu-toggle" type="button" aria-controls="mobile-nav" aria-expanded="false">
-      <span></span><span></span><span class="sr-only">Abrir menú</span>
+    <button class="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false">
+      <span></span><span></span>
+      <span class="sr-only">Abrir menú</span>
     </button>
 
     <nav class="desktop-nav" aria-label="Navegación principal">
@@ -45,21 +48,91 @@ const mobileLinks = [
       </a>
     </div>
   </div>
-
-  <nav class="mobile-nav" id="mobile-nav" aria-label="Navegación móvil" hidden>
-    {mobileLinks.map((link, index) => <a href={link.href}><span>0{index + 1}</span>{link.label}</a>)}
-    <p>Materia, tacto y tiempo.</p>
-  </nav>
 </header>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <button class="mobile-menu-backdrop" type="button" data-close-menu aria-label="Cerrar menú"></button>
+  <nav
+    class="mobile-nav"
+    id="mobile-nav"
+    aria-label="Navegación móvil"
+    tabindex="-1"
+  >
+    <header class="mobile-nav-head">
+      <p class="mobile-nav-kicker">Casa Trama</p>
+      <button class="mobile-nav-close" type="button" data-close-menu aria-label="Cerrar">
+        <Icon name="close" size={18} />
+      </button>
+    </header>
+
+    <div class="mobile-nav-links">
+      {
+        mobileLinks.map((link, index) => (
+          <a
+            href={link.href}
+            style={`--i: ${index}`}
+            aria-current={currentPath.startsWith(link.href) ? 'page' : undefined}
+            data-close-menu
+          >
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
+
+    <p class="mobile-nav-foot">Materia, tacto y tiempo.</p>
+  </nav>
+</div>
 
 <script>
   const toggle = document.querySelector('.menu-toggle');
-  const nav = document.querySelector('#mobile-nav');
-  toggle?.addEventListener('click', () => {
-    if (!(nav instanceof HTMLElement) || !(toggle instanceof HTMLButtonElement)) return;
-    const open = toggle.getAttribute('aria-expanded') === 'true';
-    toggle.setAttribute('aria-expanded', String(!open));
-    nav.hidden = open;
-    document.body.classList.toggle('menu-open', !open);
-  });
+  const menu = document.querySelector('#mobile-menu');
+  const panel = document.querySelector('#mobile-nav');
+  const label = toggle?.querySelector('.sr-only');
+
+  if (toggle instanceof HTMLButtonElement && menu instanceof HTMLElement && panel instanceof HTMLElement) {
+    document.body.appendChild(menu);
+
+    let closing = false;
+
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      document.body.classList.toggle('menu-open', open);
+      if (label) label.textContent = open ? 'Cerrar menú' : 'Abrir menú';
+
+      if (open) {
+        menu.hidden = false;
+        requestAnimationFrame(() => {
+          menu.classList.add('is-open');
+          panel.focus({ preventScroll: true });
+        });
+        return;
+      }
+
+      menu.classList.remove('is-open');
+      if (closing) return;
+      closing = true;
+      window.setTimeout(() => {
+        menu.hidden = true;
+        closing = false;
+      }, 520);
+    };
+
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') === 'true';
+      setOpen(!open);
+    });
+
+    menu.querySelectorAll('[data-close-menu]').forEach((el) => {
+      el.addEventListener('click', () => setOpen(false));
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
 </script>

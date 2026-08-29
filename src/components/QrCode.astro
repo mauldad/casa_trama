@@ -1,0 +1,41 @@
+---
+import { encode } from 'uqr';
+
+interface Props {
+  value: string;
+  size?: number;
+  class?: string;
+  label?: string;
+}
+
+const { value, size = 88, class: className = 'qr-code', label = 'Código QR' } = Astro.props;
+const { size: modules, data } = encode(value, { ecc: 'M' });
+const cell = size / modules;
+---
+
+<svg
+  class={className}
+  width={size}
+  height={size}
+  viewBox={`0 0 ${size} ${size}`}
+  role="img"
+  aria-label={label}
+>
+  <title>{label}</title>
+  <rect width={size} height={size} fill="var(--paper, #f4f0e7)" />
+  {
+    data.map((row, y) =>
+      row.map((on, x) =>
+        on ? (
+          <rect
+            x={x * cell}
+            y={y * cell}
+            width={cell}
+            height={cell}
+            fill="currentColor"
+          />
+        ) : null,
+      ),
+    )
+  }
+</svg>

@@ -11,6 +11,8 @@ interface ImportMetaEnv {
   readonly WOO_STORE_API_URL: string;
   readonly PUBLIC_GTM_ID: string;
   readonly RESEND_API_KEY: string;
+  readonly RESEND_FROM_EMAIL?: string;
+  readonly CONTACT_TO_EMAIL?: string;
   readonly DATABASE_URL: string;
   readonly PAYMENT_PROVIDER: 'mock' | 'webpay';
   readonly TRANSBANK_ENV: 'integration' | 'production';

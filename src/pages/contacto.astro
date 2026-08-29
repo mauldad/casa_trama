@@ -1,6 +1,140 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
 ---
-<BaseLayout title="Contacto" description="Conversa con Casa Trama para recibir ayuda sobre fibras, productos, despachos o cuidados.">
-  <section class="simple-page shell"><p class="eyebrow">Estamos cerca</p><h1>Conversemos.</h1><p>Si necesitas elegir una pieza, confirmar una medida o preguntar por un despacho, escríbenos a hola@casatrama.cl.</p><a class="button" href="mailto:hola@casatrama.cl">Escribir a Casa Trama</a></section>
+
+<BaseLayout
+  title="Contacto"
+  description="Escribe a Casa Trama para recibir ayuda sobre fibras, productos, despachos o cuidados."
+>
+  <section class="contact-page shell">
+    <div class="contact-intro">
+      <p class="eyebrow">Estamos cerca</p>
+      <h1>Conversemos.</h1>
+      <p>
+        Si necesitas elegir una pieza, confirmar una medida o preguntar por un despacho,
+        déjanos tu mensaje. Respondemos con calma y claridad.
+      </p>
+      <ul class="contact-aside">
+        <li>
+          <span>Temas</span>
+          <p>Piezas, fibras, cuidados, despachos y pedidos.</p>
+        </li>
+        <li>
+          <span>Tiempo</span>
+          <p>Respondemos en días hábiles, sin prisa innecesaria.</p>
+        </li>
+        <li>
+          <span>Desde</span>
+          <p>Puerto Varas, Chile.</p>
+        </li>
+      </ul>
+    </div>
+
+    <form class="contact-form" id="contact-form" novalidate>
+      <div class="field-grid">
+        <div class="field">
+          <label for="contact-name">Nombre</label>
+          <input id="contact-name" name="name" type="text" autocomplete="name" required maxlength="120" />
+        </div>
+        <div class="field">
+          <label for="contact-email">Correo</label>
+          <input id="contact-email" name="email" type="email" autocomplete="email" required maxlength="160" />
+        </div>
+        <div class="field">
+          <label for="contact-phone">Teléfono <em>(opcional)</em></label>
+          <input id="contact-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" />
+        </div>
+        <div class="field">
+          <label for="contact-topic">Tema</label>
+          <select id="contact-topic" name="topic" required>
+            <option value="">Selecciona</option>
+            <option value="pieza">Elegir una pieza</option>
+            <option value="fibra">Fibras y materiales</option>
+            <option value="pedido">Pedido o despacho</option>
+            <option value="cuidado">Cuidado de textiles</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="field field-wide">
+          <label for="contact-message">Mensaje</label>
+          <textarea
+            id="contact-message"
+            name="message"
+            rows="6"
+            required
+            maxlength="4000"
+            placeholder="Cuéntanos qué necesitas."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="contact-honeypot" aria-hidden="true">
+        <label for="contact-company">Empresa</label>
+        <input id="contact-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <p class="contact-status" id="contact-status" role="status" aria-live="polite" hidden></p>
+
+      <button class="button" type="submit" id="contact-submit">
+        Enviar mensaje <Icon name="arrow-right" size={14} />
+      </button>
+    </form>
+  </section>
 </BaseLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#contact-form');
+  const status = document.querySelector<HTMLElement>('#contact-status');
+  const submit = document.querySelector<HTMLButtonElement>('#contact-submit');
+
+  const showStatus = (message: string, kind: 'ok' | 'error') => {
+    if (!status) return;
+    status.hidden = false;
+    status.dataset.kind = kind;
+    status.textContent = message;
+  };
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+
+    const payload = {
+      name: String(new FormData(form).get('name') || '').trim(),
+      email: String(new FormData(form).get('email') || '').trim(),
+      phone: String(new FormData(form).get('phone') || '').trim(),
+      topic: String(new FormData(form).get('topic') || '').trim(),
+      message: String(new FormData(form).get('message') || '').trim(),
+      company: String(new FormData(form).get('company') || '').trim(),
+    };
+
+    if (submit) {
+      submit.disabled = true;
+      submit.setAttribute('aria-busy', 'true');
+    }
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = (await response.json().catch(() => ({}))) as { error?: string; ok?: boolean };
+
+      if (!response.ok || result.error) {
+        showStatus(result.error || 'No pudimos enviar el mensaje. Intenta de nuevo.', 'error');
+        return;
+      }
+
+      form.reset();
+      showStatus('Mensaje enviado. Te responderemos pronto.', 'ok');
+    } catch {
+      showStatus('No pudimos enviar el mensaje. Revisa tu conexión e intenta de nuevo.', 'error');
+    } finally {
+      if (submit) {
+        submit.disabled = false;
+        submit.removeAttribute('aria-busy');
+      }
+    }
+  });
+</script>

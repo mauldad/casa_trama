@@ -1,0 +1,44 @@
+---
+import Icon from '@/components/Icon.astro';
+
+interface Trait {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  index: string;
+  name: string;
+  summary: string;
+  traits: Trait[];
+  tone?: 'ember' | 'cream';
+  href?: string;
+  icon?: 'touch' | 'leaf' | 'time' | 'guide' | 'alpaca';
+}
+
+const { index, name, summary, traits, tone = 'ember', href, icon } = Astro.props;
+const Tag = href ? 'a' : 'article';
+---
+
+<Tag class:list={['fiber-card', `fiber-card--${tone}`]} href={href}>
+  <span class="fiber-card-index">{index}</span>
+  {
+    icon && (
+      <span class="fiber-card-icon" aria-hidden="true">
+        <Icon name={icon} size={icon === 'alpaca' ? 24 : 22} />
+      </span>
+    )
+  }
+  <h3>{name}</h3>
+  <p>{summary}</p>
+  <dl class="fiber-card-traits">
+    {
+      traits.map((trait) => (
+        <div>
+          <dt>{trait.label}</dt>
+          <dd>{trait.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</Tag>

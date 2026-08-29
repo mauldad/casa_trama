@@ -1,13 +1,16 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import FiberCard from '@/components/FiberCard.astro';
 import ProductCard from '@/components/ProductCard.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import Icon from '@/components/Icon.astro';
+import QrCode from '@/components/QrCode.astro';
 import { getProducts } from '@/lib/commerce';
 import { getLatestPost } from '@/lib/wordpress';
 
 const products = await getProducts({ featured: true });
 const latestStory = await getLatestPost();
+const pieceStoryUrl = new URL('/pieza/', Astro.site).href;
 
 const marqueePhrases = [
   'El tacto antes que la forma',
@@ -28,8 +31,8 @@ const marqueePhrases = [
   description="Textiles de fibras nobles elegidos por su textura, caída y permanencia. Casa Trama, desde el sur de Chile."
 >
   <h1 class="sr-only">Casa Trama — Curaduría de fibras nobles</h1>
-  <section class="home-hero" aria-label="Curaduría de fibras">
-    <a class="hero-panel" href="/guias/fibras-nobles/">
+  <section class="home-hero" aria-label="Curaduría de fibras" data-hero-fade>
+    <a class="hero-panel is-active" href="/guias/fibras-nobles/">
       <img
         src="/images/hero-alpaca.webp"
         alt="Textil de alpaca drapeado sobre una rama frente a un lago del sur"
@@ -77,10 +80,7 @@ const marqueePhrases = [
   <section class="home-quote" aria-labelledby="home-quote-text">
     <p class="home-quote-credit">Casa Trama / Materia consciente</p>
     <p class="home-quote-text" id="home-quote-text">
-      Vestir también es recordar una<br />
-      sensación: la luz de la mañana, el<br />
-      aire frío y una fibra suave que<br />
-      acompaña sin imponerse.
+      Vestir también es recordar una sensación: la luz de la mañana, el aire frío y una fibra suave que acompaña sin imponerse.
     </p>
     <a class="home-quote-link" href="/casa-trama/">Conocer nuestra mirada /</a>
   </section>
@@ -98,20 +98,34 @@ const marqueePhrases = [
     </div>
     <div class="home-finds-media">
       <figure class="home-finds-shot">
-        <img
-          src="/images/hallazgo-alpaca-01.webp"
-          alt="Mujer en el bosque con estola de baby alpaca en tono café"
-          width="1200"
-          height="1600"
-        />
+        <a class="home-finds-shot-link" href="/tienda/">
+          <img
+            src="/images/hallazgo-alpaca-01.webp"
+            alt="Estola Trama en café mineral, sobre paisaje de bosque"
+            width="1200"
+            height="1600"
+          />
+        </a>
+        <figcaption class="home-finds-caption">
+          <p class="home-finds-tone">Café mineral</p>
+          <h3><a href="/tienda/">Estola Trama</a></h3>
+          <p class="home-finds-price">$89.000</p>
+        </figcaption>
       </figure>
       <figure class="home-finds-shot">
-        <img
-          src="/images/hallazgo-alpaca-02.webp"
-          alt="Detalle de estola de baby alpaca mostaza sobre un paisaje de bosque"
-          width="1200"
-          height="1600"
-        />
+        <a class="home-finds-shot-link" href="/producto/estola-luz-de-ocre/">
+          <img
+            src="/images/hallazgo-alpaca-02.webp"
+            alt="Estola Luz de Ocre en camel mostaza, sobre paisaje de bosque"
+            width="1200"
+            height="1600"
+          />
+        </a>
+        <figcaption class="home-finds-caption">
+          <p class="home-finds-tone">Camel mostaza</p>
+          <h3><a href="/producto/estola-luz-de-ocre/">Estola Luz de Ocre</a></h3>
+          <p class="home-finds-price">$79.000</p>
+        </figcaption>
       </figure>
     </div>
   </section>
@@ -187,6 +201,73 @@ const marqueePhrases = [
     </div>
   </section>
 
+  <section class="nobility-index" aria-labelledby="nobility-title">
+    <div class="shell nobility-index-inner">
+      <div class="nobility-pillars" role="list">
+        <article class="nobility-pillar nobility-pillar--mist" role="listitem">
+          <p>01 / Tacto</p>
+          <span class="nobility-pillar-icon" aria-hidden="true"><Icon name="touch" size={22} /></span>
+          <h3>Suave, ligero, sereno.</h3>
+        </article>
+        <article class="nobility-pillar nobility-pillar--clay" role="listitem">
+          <p>02 / Origen</p>
+          <span class="nobility-pillar-icon" aria-hidden="true"><Icon name="leaf" size={22} /></span>
+          <h3>Fibras nobles. Belleza natural.</h3>
+        </article>
+        <article class="nobility-pillar nobility-pillar--ink" role="listitem">
+          <p>03 / Tiempo</p>
+          <span class="nobility-pillar-icon" aria-hidden="true"><Icon name="time" size={22} /></span>
+          <h3>Elegido para permanecer.</h3>
+        </article>
+      </div>
+
+      <div class="nobility-board">
+        <div class="nobility-intro">
+          <p class="nobility-intro-kicker">Índice de nobleza / 01</p>
+          <span class="nobility-pillar-icon" aria-hidden="true"><Icon name="guide" size={22} /></span>
+          <h2 id="nobility-title">Conocer la fibra cambia la elección.</h2>
+          <p>
+            Una guía propia para entender qué ofrece cada material en la vida real: cómo abriga, cómo
+            respira y cómo envejece.
+          </p>
+          <a class="nobility-cta" href="/guias/fibras-nobles/">
+            Explorar todos los materiales <Icon name="arrow-ne" size={12} />
+          </a>
+        </div>
+
+        <FiberCard
+          index="01"
+          name="Alpaca"
+          summary="Resistencia, ligereza y calidez de origen andino."
+          tone="ember"
+          icon="alpaca"
+          href="/guias/fibras-nobles/"
+          traits={[
+            { label: 'Suavidad', value: 'Alta' },
+            { label: 'Calidez', value: 'Alta' },
+            { label: 'Ligereza', value: 'Muy alta' },
+            { label: 'Ideal para', value: 'Invierno · Viaje' },
+          ]}
+        />
+
+        <FiberCard
+          index="02"
+          name="Algodón"
+          summary="Frescura, suavidad cotidiana y una caída natural."
+          tone="cream"
+          icon="touch"
+          href="/guias/fibras-nobles/"
+          traits={[
+            { label: 'Suavidad', value: 'Alta' },
+            { label: 'Frescura', value: 'Muy alta' },
+            { label: 'Cuidado', value: 'Fácil' },
+            { label: 'Ideal para', value: 'Diario · Verano' },
+          ]}
+        />
+      </div>
+    </div>
+  </section>
+
   <section class="editorial-story">
     <div class="shell story-grid">
       <div class="story-collage">
@@ -218,4 +299,120 @@ const marqueePhrases = [
       <article><span>03</span><h3>Compra acompañada</h3><p>Estamos disponibles si necesitas elegir con calma.</p></article>
     </div>
   </section>
+
+  <section class="limited-note" aria-labelledby="limited-note-title">
+    <div class="limited-note-field" aria-hidden="true">
+      <span class="limited-note-glow"></span>
+      <span class="limited-note-weave"></span>
+      <span class="limited-note-grain"></span>
+    </div>
+
+    <div class="shell limited-note-layout">
+      <article class="limited-note-card">
+        <p class="limited-note-kicker">Una nota sobre nuestros hallazgos</p>
+        <h2 id="limited-note-title">Stock limitado.<br />Piezas únicas.</h2>
+        <p>
+          Seleccionamos piezas especiales en series muy pequeñas y, en algunos casos, una única unidad.
+          Cuando una pieza encuentra a su persona, puede no volver.
+        </p>
+        <p class="limited-note-sign">Casa Trama</p>
+        <a class="limited-note-qr" href="/pieza/" aria-label="Escanear para seguir la historia de una pieza">
+          <QrCode value={pieceStoryUrl} size={78} label="QR hacia la historia de la pieza" />
+        </a>
+        <a class="limited-note-cta" href="/tienda/">Volver a las piezas <Icon name="arrow-right" size={12} /></a>
+      </article>
+
+      <div class="limited-note-display">
+        <p class="limited-note-display-copy">
+          <span>Edición</span>
+          <em>limitada</em>
+        </p>
+        <p class="limited-note-meta">Encontrado una vez. Elegido para permanecer.</p>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-hero-fade]');
+  if (hero && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const mobile = window.matchMedia('(max-width: 900px)');
+    const items = () => Array.from(hero.querySelectorAll<HTMLElement>('.hero-panel'));
+    let timer: ReturnType<typeof setInterval> | undefined;
+    let resumeTimer: ReturnType<typeof setTimeout> | undefined;
+    let index = Math.max(0, items().findIndex((panel) => panel.classList.contains('is-active')));
+    let touchX = 0;
+    let locked = false;
+
+    const goTo = (next: number) => {
+      const panels = items();
+      if (!panels.length || locked) return;
+      const target = ((next % panels.length) + panels.length) % panels.length;
+      if (target === index && panels[target]?.classList.contains('is-active')) return;
+
+      locked = true;
+      panels.forEach((panel, i) => {
+        panel.classList.toggle('is-active', i === target);
+      });
+      index = target;
+      window.setTimeout(() => {
+        locked = false;
+      }, 1600);
+    };
+
+    const stop = () => {
+      if (timer) clearInterval(timer);
+      timer = undefined;
+    };
+
+    const start = () => {
+      stop();
+      if (!mobile.matches) return;
+      timer = setInterval(() => goTo(index + 1), 7400);
+    };
+
+    const pause = () => {
+      stop();
+      if (resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(start, 11000);
+    };
+
+    hero.addEventListener(
+      'touchstart',
+      (event) => {
+        touchX = event.changedTouches[0]?.clientX ?? 0;
+        pause();
+      },
+      { passive: true },
+    );
+
+    hero.addEventListener(
+      'touchend',
+      (event) => {
+        if (!mobile.matches) return;
+        const endX = event.changedTouches[0]?.clientX ?? touchX;
+        const delta = endX - touchX;
+        if (Math.abs(delta) < 48) return;
+        goTo(index + (delta < 0 ? 1 : -1));
+        pause();
+      },
+      { passive: true },
+    );
+
+    mobile.addEventListener('change', () => {
+      stop();
+      items().forEach((panel, i) => panel.classList.toggle('is-active', i === 0 || (mobile.matches && i === index)));
+      if (!mobile.matches) {
+        items().forEach((panel) => panel.classList.remove('is-active'));
+        return;
+      }
+      goTo(index);
+      start();
+    });
+
+    if (mobile.matches) {
+      goTo(index || 0);
+      window.setTimeout(start, 4200);
+    }
+  }
+</script>
