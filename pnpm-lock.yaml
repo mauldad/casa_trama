@@ -17,11 +17,8 @@ importers:
       '@fontsource/cormorant-garamond':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/dm-sans':
-        specifier: latest
-        version: 5.3.0
-      '@fontsource/italiana':
-        specifier: latest
+      '@fontsource/instrument-sans':
+        specifier: ^5.3.0
         version: 5.3.0
       astro:
         specifier: ^7.0.0
@@ -605,11 +602,8 @@ packages:
   '@fontsource/cormorant-garamond@5.3.0':
     resolution: {integrity: sha512-weuGsCirGVWBWqpt6YUp0yLThTe4G8YO45noq8wxeJCRvEpq5lFrxNMFSTxcyOyV5k5otzJ8guDzYegdYlcLMQ==}
 
-  '@fontsource/dm-sans@5.3.0':
-    resolution: {integrity: sha512-lYJtMXXO28q1z+yz+z8XKd0s4hXaa9QdkETzkyD760sidCv5heI86weYA0sx0Nc4pAMAQTUuyf4gO44cYKKS9g==}
-
-  '@fontsource/italiana@5.3.0':
-    resolution: {integrity: sha512-B8+XUGaaNXlfll5aqFlCVd/4kboQJWIy/laWO73CN00F8E08vPu07Cqn4NTQcmQvzJU3+FIBdThvpqto0+M9mQ==}
+  '@fontsource/instrument-sans@5.3.0':
+    resolution: {integrity: sha512-QwXc4hb/px3XvSPS2CPAOgey8nyrQFxgxrmXQQ+pN+P51hKdAcchxpg8rSbjANFfPu6VKXhDqkVDucXMZ9CM5g==}
 
   '@humanwhocodes/momoa@2.0.4':
     resolution: {integrity: sha512-RE815I4arJFtt+FVeU1Tgp9/Xvecacji8w/V6XtXsWWH/wz/eNkNbhb+ny/+PlVZjV0rxQpRSQKNKE3lcktHEA==}
@@ -4669,9 +4663,7 @@ snapshots:
 
   '@fontsource/cormorant-garamond@5.3.0': {}
 
-  '@fontsource/dm-sans@5.3.0': {}
-
-  '@fontsource/italiana@5.3.0': {}
+  '@fontsource/instrument-sans@5.3.0': {}
 
   '@humanwhocodes/momoa@2.0.4': {}
 

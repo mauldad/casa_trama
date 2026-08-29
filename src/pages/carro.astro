@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
 ---
 
 <BaseLayout title="Carro" description="Revisa las piezas seleccionadas antes de continuar al pago." noindex>
@@ -21,7 +22,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         <div class="summary-row"><span>Subtotal</span><span id="cart-subtotal">$0</span></div>
         <div class="summary-row"><span>Despacho</span><span>Calculado al pagar</span></div>
         <div class="summary-row summary-total"><strong>Total</strong><strong id="cart-total">$0</strong></div>
-        <a class="button" id="checkout-link" href="/checkout/">Continuar al pago <span aria-hidden="true">→</span></a>
+        <a class="button" id="checkout-link" href="/checkout/">Continuar al pago <Icon name="arrow-right" size={14} /></a>
       </aside>
     </div>
   </section>

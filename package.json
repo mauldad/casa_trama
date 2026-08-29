@@ -17,8 +17,7 @@
     "@astrojs/netlify": "^8.2.4",
     "@astrojs/sitemap": "latest",
     "@fontsource/cormorant-garamond": "^5.3.0",
-    "@fontsource/dm-sans": "latest",
-    "@fontsource/italiana": "latest",
+    "@fontsource/instrument-sans": "^5.3.0",
     "astro": "^7.0.0",
     "sharp": "latest",
     "transbank-sdk": "^6.1.1"

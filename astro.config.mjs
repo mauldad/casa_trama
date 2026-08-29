@@ -23,5 +23,11 @@ export default defineConfig({
     build: {
       cssMinify: 'lightningcss',
     },
+    // Astro leaves these as bare imports; Netlify functions use nodeBundler:none
+    // and only packs a few externals (e.g. transbank-sdk). Bundle them so SSR
+    // does not 502 with ERR_MODULE_NOT_FOUND at runtime.
+    ssr: {
+      noExternal: ['cookie', 'clsx', 'zod'],
+    },
   },
 });

@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import ProductCard from '@/components/ProductCard.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import Trail from '@/components/Trail.astro';
+import Icon from '@/components/Icon.astro';
 import { getProduct, getProducts } from '@/lib/commerce';
 import { formatCLP } from '@/lib/format';
 import { productSchema } from '@/lib/seo';
@@ -39,7 +40,7 @@ const image = product.images[0];
         data-name={product.name}
         data-price={product.price}
         data-image={image?.src}
-      >{product.stockStatus === 'outofstock' ? 'Producto agotado' : 'Agregar al carro'} <span aria-hidden="true">→</span></button>
+      >{product.stockStatus === 'outofstock' ? 'Producto agotado' : 'Agregar al carro'} <Icon name="arrow-right" size={14} /></button>
       <div class="buy-dock">
         <div>
           <p>{product.name}</p>

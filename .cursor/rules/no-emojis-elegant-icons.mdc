@@ -1,0 +1,11 @@
+---
+description: Casa Trama — sin emojis; solo iconos SVG elegantes
+globs: src/**/*.{astro,css,ts,tsx,js,jsx,html,md,mdx}
+alwaysApply: true
+---
+
+# Iconografía Casa Trama
+
+Por ningún motivo usar emojis ni caracteres Unicode decorativos como flechas tipográficas (`↗`, `→`, `★`, `✨`, etc.) en la UI.
+
+Siempre usar iconos SVG de línea elegantes vía `src/components/Icon.astro` (`stroke` fino, `currentColor`). Si falta un icono, extender ese componente — no improvisar con emoji o texto.

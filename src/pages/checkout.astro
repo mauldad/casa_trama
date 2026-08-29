@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
 import { getPublicPaymentConfig } from '@/lib/payment';
 
 const payment = getPublicPaymentConfig();
@@ -35,7 +36,7 @@ const payment = getPublicPaymentConfig();
           </p>
         </fieldset>
         <div class="checkout-note">El despacho se definirá más adelante. Por ahora solo se cobra el total de productos.</div>
-        <button class="button" type="submit" id="checkout-submit">Continuar al pago <span aria-hidden="true">→</span></button>
+        <button class="button" type="submit" id="checkout-submit">Continuar al pago <Icon name="arrow-right" size={14} /></button>
         <p class="checkout-note" id="checkout-error" hidden role="alert"></p>
       </form>
       <aside class="cart-summary">
