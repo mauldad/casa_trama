@@ -75,29 +75,22 @@ const fiberStory = getFiberStory(fiber);
         <section class="product-senses" aria-label="Indicadores sensoriales">
           <p class="product-senses-kicker">Cómo se siente</p>
           <ul class="product-sense-grid">
-            {product.senses.map((sense) => {
-              const value = sense.value.replace(/\s*·\s*[1-5]\s*\/\s*5/, '').trim();
-              return (
-                <li class="product-sense">
-                  <p class="product-sense-label">{sense.label}</p>
-                  <p class="product-sense-value">{value}</p>
-                  {typeof sense.level === 'number' ? (
-                    <div
-                      class="product-sense-meter"
-                      role="img"
-                      aria-label={`${sense.label}: ${sense.level} de 5`}
-                    >
-                      {Array.from({ length: 5 }).map((_, index) => (
-                        <span class:list={['product-sense-pip', { 'is-on': index < (sense.level || 0) }]} />
-                      ))}
-                      <span class="product-sense-level">{sense.level}/5</span>
-                    </div>
-                  ) : (
-                    <p class="product-sense-hint">Al tacto</p>
-                  )}
-                </li>
-              );
-            })}
+            {product.senses.slice(0, 4).map((sense) => (
+              <li class="product-sense">
+                <p class="product-sense-label">{sense.label}</p>
+                <p class="product-sense-value">{sense.value}</p>
+                <div
+                  class="product-sense-meter"
+                  role="img"
+                  aria-label={`${sense.label}: ${sense.level || 0} de 5`}
+                >
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <span class:list={['product-sense-pip', { 'is-on': index < (sense.level || 0) }]} />
+                  ))}
+                  <span class="product-sense-level">{sense.level || 0}/5</span>
+                </div>
+              </li>
+            ))}
           </ul>
         </section>
       )}
