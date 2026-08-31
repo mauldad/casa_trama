@@ -98,6 +98,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 8px clamp(22px, 3vw, 48px);
   color: color-mix(in srgb, var(--ink), transparent 18%);
   background: var(--paper);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink), transparent 90%);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -147,6 +148,7 @@ h1, h2, h3, h4, h5, h6 {
   grid-row: 1;
   display: flex;
   gap: 28px;
+  font-family: var(--sans);
   font-size: 10px;
   font-weight: 500;
   letter-spacing: var(--tracking-label);
@@ -179,20 +181,27 @@ h1, h2, h3, h4, h5, h6 {
 }
 .header-text-link {
   position: relative;
+  font-family: var(--sans);
   font-size: 10px;
   font-weight: 500;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
+  line-height: 1.2;
 }
 button.header-text-link {
+  appearance: none;
   border: 0;
+  margin: 0;
+  padding: 0;
   background: transparent;
   color: inherit;
-  font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  line-height: 1.2;
   cursor: pointer;
-  padding: 0;
 }
 .cart-link {
   display: inline-flex;
