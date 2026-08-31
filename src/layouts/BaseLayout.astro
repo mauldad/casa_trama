@@ -3,7 +3,14 @@ import Announcement from '@/components/Announcement.astro';
 import CartDrawer from '@/components/CartDrawer.astro';
 import Footer from '@/components/Footer.astro';
 import Header from '@/components/Header.astro';
-import { organizationSchema } from '@/lib/seo';
+import { stripHtml } from '@/lib/format';
+import {
+  DEFAULT_OG_IMAGE,
+  DEFAULT_OG_IMAGE_ALT,
+  DEFAULT_OG_IMAGE_HEIGHT,
+  DEFAULT_OG_IMAGE_WIDTH,
+  organizationSchema,
+} from '@/lib/seo';
 import '@/styles/fonts.css';
 import '@/styles/global.css';
 
@@ -13,6 +20,9 @@ interface Props {
   canonical?: string;
   noindex?: boolean;
   ogImage?: string;
+  ogImageWidth?: number | string;
+  ogImageHeight?: number | string;
+  ogImageAlt?: string;
   ogType?: string;
   ogTitle?: string;
   ogDescription?: string;
@@ -26,6 +36,9 @@ const {
   canonical = new URL(Astro.url.pathname, Astro.site),
   noindex = false,
   ogImage,
+  ogImageWidth,
+  ogImageHeight,
+  ogImageAlt,
   ogType = 'website',
   ogTitle,
   ogDescription,
@@ -39,7 +52,8 @@ const socialTitle = ogTitle
     ? ogTitle
     : `${ogTitle} — Casa Trama`
   : pageTitle;
-const socialDescription = ogDescription || description;
+const socialDescription = stripHtml(ogDescription || description);
+const metaDescription = stripHtml(description);
 const schemas = schema ? [organizationSchema].concat(schema as never) : [organizationSchema];
 const gtmId = import.meta.env.PUBLIC_GTM_ID;
 const robotsContent = noindex ? 'noindex,follow' : robots;
@@ -47,7 +61,11 @@ const absoluteOgImage = ogImage
   ? /^https?:\/\//i.test(ogImage)
     ? ogImage
     : new URL(ogImage, Astro.site).href
-  : undefined;
+  : DEFAULT_OG_IMAGE;
+const resolvedOgWidth = Number(ogImageWidth) || (absoluteOgImage === DEFAULT_OG_IMAGE ? DEFAULT_OG_IMAGE_WIDTH : 1200);
+const resolvedOgHeight = Number(ogImageHeight) || (absoluteOgImage === DEFAULT_OG_IMAGE ? DEFAULT_OG_IMAGE_HEIGHT : 1500);
+const resolvedOgAlt = ogImageAlt || DEFAULT_OG_IMAGE_ALT;
+const canonicalHref = String(canonical);
 ---
 
 <!doctype html>
@@ -55,6 +73,30 @@ const absoluteOgImage = ogImage
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={metaDescription} />
+    {robotsContent && <meta name="robots" content={robotsContent} />}
+    <link rel="canonical" href={canonicalHref} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:locale" content="es_CL" />
+    <meta property="og:site_name" content="Casa Trama" />
+    <meta property="og:title" content={socialTitle} />
+    <meta property="og:description" content={socialDescription} />
+    <meta property="og:url" content={canonicalHref} />
+    <meta property="og:image" content={absoluteOgImage} />
+    <meta property="og:image:secure_url" content={absoluteOgImage} />
+    <meta property="og:image:type" content={absoluteOgImage.endsWith('.jpg') || absoluteOgImage.endsWith('.jpeg') ? 'image/jpeg' : absoluteOgImage.endsWith('.png') ? 'image/png' : 'image/webp'} />
+    <meta property="og:image:width" content={String(resolvedOgWidth)} />
+    <meta property="og:image:height" content={String(resolvedOgHeight)} />
+    <meta property="og:image:alt" content={resolvedOgAlt} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={socialTitle} />
+    <meta name="twitter:description" content={socialDescription} />
+    <meta name="twitter:image" content={absoluteOgImage} />
+    <meta name="twitter:image:alt" content={resolvedOgAlt} />
+
     {
       gtmId && (
         <script is:inline set:html={`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -65,13 +107,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       )
     }
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={description} />
     <meta name="theme-color" content="#eee8dc" />
-    {robotsContent && <meta name="robots" content={robotsContent} />}
-    <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <slot name="head" />
-    <title>{pageTitle}</title>
     <style is:inline>
       html.js body { background: #f4f0e7; }
       html.js .site-chrome,
@@ -125,17 +163,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         });
       }, 1600);
     </script>
-    <meta property="og:type" content={ogType} />
-    <meta property="og:locale" content="es_CL" />
-    <meta property="og:title" content={socialTitle} />
-    <meta property="og:description" content={socialDescription} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:site_name" content="Casa Trama" />
-    {absoluteOgImage && <meta property="og:image" content={absoluteOgImage} />}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={socialTitle} />
-    <meta name="twitter:description" content={socialDescription} />
-    {absoluteOgImage && <meta name="twitter:image" content={absoluteOgImage} />}
     {schemas.map((item) => <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />)}
   </head>
   <body>

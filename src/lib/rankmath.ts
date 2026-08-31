@@ -1,3 +1,4 @@
+import { stripHtml } from '@/lib/format';
 import { runtimeEnv } from '@/lib/runtime-env';
 
 const WP = () =>
@@ -16,6 +17,9 @@ export interface RankMathSeo {
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
+  ogImageWidth?: string;
+  ogImageHeight?: string;
+  ogImageAlt?: string;
   ogType?: string;
   twitterCard?: string;
   /** JSON-LD nodes útiles (Product, Article, etc.) ya reescritos al dominio público */
@@ -128,6 +132,12 @@ function usefulSchemaTypes(type: unknown) {
   );
 }
 
+function cleanSeoText(value?: string) {
+  if (!value) return undefined;
+  const cleaned = stripHtml(value).replace(/\u00a0/g, ' ').trim();
+  return cleaned || undefined;
+}
+
 function sanitizeRobotsForStorefront(robots?: string): string | undefined {
   if (!robots) return undefined;
   // En headless el CMS suele ir noindex; el storefront público debe indexarse.
@@ -146,12 +156,16 @@ export function parseRankMathHead(
   options: { storefrontCanonical: string; wpPath?: string },
 ): RankMathSeo {
   const title = headHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]?.trim();
-  const description =
-    metaBy(headHtml, 'description') || metaBy(headHtml, 'og:description', 'property');
+  const description = cleanSeoText(
+    metaBy(headHtml, 'description') || metaBy(headHtml, 'og:description', 'property'),
+  );
   const robots = sanitizeRobotsForStorefront(metaBy(headHtml, 'robots'));
-  const ogTitle = metaBy(headHtml, 'og:title', 'property');
-  const ogDescription = metaBy(headHtml, 'og:description', 'property');
+  const ogTitle = cleanSeoText(metaBy(headHtml, 'og:title', 'property'));
+  const ogDescription = cleanSeoText(metaBy(headHtml, 'og:description', 'property'));
   const ogImage = metaBy(headHtml, 'og:image', 'property');
+  const ogImageWidth = metaBy(headHtml, 'og:image:width', 'property');
+  const ogImageHeight = metaBy(headHtml, 'og:image:height', 'property');
+  const ogImageAlt = cleanSeoText(metaBy(headHtml, 'og:image:alt', 'property'));
   const ogType = metaBy(headHtml, 'og:type', 'property');
   const twitterCard = metaBy(headHtml, 'twitter:card');
 
@@ -162,14 +176,14 @@ export function parseRankMathHead(
         rewriteDeep(node, options.storefrontCanonical, options.wpPath) as Record<string, unknown>,
     );
 
-  const cleanTitle = title
+  const cleanTitle = cleanSeoText(title)
     ?.replace(/\s*[-|]\s*blog\.casatrama\.cl\s*$/i, '')
     .replace(/\s*[-|]\s*Casa Trama\s*$/i, '')
     .trim();
 
   return {
     title: cleanTitle || undefined,
-    description: description || undefined,
+    description,
     canonical: options.storefrontCanonical,
     robots,
     ogTitle: ogTitle
@@ -178,6 +192,9 @@ export function parseRankMathHead(
       .trim(),
     ogDescription,
     ogImage,
+    ogImageWidth,
+    ogImageHeight,
+    ogImageAlt,
     ogType,
     twitterCard,
     schemas,

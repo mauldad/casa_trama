@@ -3,6 +3,12 @@ import { getAttrValue } from '@/lib/product-profile';
 
 const SITE = 'https://casatrama.cl';
 
+/** Imagen social por defecto (1200×630) para Open Graph / Twitter. */
+export const DEFAULT_OG_IMAGE = `${SITE}/images/og-default.jpg`;
+export const DEFAULT_OG_IMAGE_WIDTH = 1200;
+export const DEFAULT_OG_IMAGE_HEIGHT = 630;
+export const DEFAULT_OG_IMAGE_ALT = 'Casa Trama — curatoría de fibras nobles en Chile';
+
 export const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
