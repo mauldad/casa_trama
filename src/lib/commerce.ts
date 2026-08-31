@@ -1,5 +1,7 @@
 import { products as mockProducts } from '@/data/products';
 import { stripHtml } from '@/lib/format';
+import { getPublicProductSlug, resolveLookupSlugs } from '@/lib/product-path';
+import { buildProductSenses, getAttrValue } from '@/lib/product-profile';
 import type { Product, ProductTone, StoreApiCategory, StoreApiProduct } from '@/types/commerce';
 
 const storeApiUrl = import.meta.env.WOO_STORE_API_URL?.replace(/\/$/, '');
@@ -53,6 +55,8 @@ export const normalizeStoreProduct = (item: StoreApiProduct): Product => {
     item.categories[0]?.name ||
     'Casa Trama';
 
+  const senses = buildProductSenses(attributes);
+
   return {
     id: item.id,
     sku: item.sku || `WC-${item.id}`,
@@ -73,6 +77,10 @@ export const normalizeStoreProduct = (item: StoreApiProduct): Product => {
     images: item.images.map((image) => ({ src: image.src, alt: image.alt || item.name })),
     attributes,
     care: careFromProduct(item),
+    senses,
+    promise: getAttrValue(attributes, ['Promesa', 'Por qué elegirla', 'Por que elegirla', 'Motivo']),
+    idealFor: getAttrValue(attributes, ['Ideal para', 'Momento', 'Uso', 'Ocasión', 'Ocasion']),
+    finish: getAttrValue(attributes, ['Terminación', 'Terminacion', 'Acabado']),
   };
 };
 
@@ -156,16 +164,28 @@ const filterProducts = (products: Product[], options: { category?: string; featu
 };
 
 export async function getProduct(slug: string): Promise<Product | undefined> {
+  const candidates = resolveLookupSlugs(slug);
+
   if (storeApiUrl) {
-    try {
-      const payload = await fetchStore<StoreApiProduct[]>(`/products?slug=${encodeURIComponent(slug)}`);
-      if (payload[0]) return normalizeStoreProduct(payload[0]);
-    } catch (error) {
-      console.warn('[Casa Trama] Fallback producto individual:', error);
+    for (const candidate of candidates) {
+      try {
+        const payload = await fetchStore<StoreApiProduct[]>(
+          `/products?slug=${encodeURIComponent(candidate)}`,
+        );
+        if (payload[0]) return normalizeStoreProduct(payload[0]);
+      } catch (error) {
+        console.warn('[Casa Trama] Fallback producto individual:', error);
+      }
     }
   }
+
   const allProducts = await getProducts();
-  return allProducts.find((product) => product.slug === slug);
+  return allProducts.find(
+    (product) =>
+      candidates.includes(product.slug) ||
+      product.slug === slug ||
+      getPublicProductSlug(product) === slug,
+  );
 }
 
 export async function getRelatedProducts(product: Product, limit = 2): Promise<Product[]> {

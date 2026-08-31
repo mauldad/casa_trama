@@ -13,6 +13,9 @@ interface ImportMetaEnv {
   readonly RESEND_API_KEY: string;
   readonly RESEND_FROM_EMAIL?: string;
   readonly CONTACT_TO_EMAIL?: string;
+  readonly ORDERS_TO_EMAIL?: string;
+  readonly LOOPS_API_KEY?: string;
+  readonly LOOPS_MAILING_LIST_ID?: string;
   readonly DATABASE_URL: string;
   readonly PAYMENT_PROVIDER: 'mock' | 'webpay';
   readonly TRANSBANK_ENV: 'integration' | 'production';

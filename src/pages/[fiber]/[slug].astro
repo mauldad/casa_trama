@@ -1,0 +1,243 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProductCard from '@/components/ProductCard.astro';
+import FiberEducate from '@/components/FiberEducate.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Trail from '@/components/Trail.astro';
+import Icon from '@/components/Icon.astro';
+import { getFiberStory } from '@/data/fiber-stories';
+import { getProduct, getRelatedProducts } from '@/lib/commerce';
+import { formatCLP } from '@/lib/format';
+import { getFiberPath, getProductPath, fiberLabel, isFiberPath } from '@/lib/product-path';
+import { enrichProductProfile } from '@/lib/product-profile';
+import { productSchema } from '@/lib/seo';
+
+const { fiber, slug } = Astro.params;
+
+if (!isFiberPath(fiber) || !slug) {
+  return Astro.redirect('/404');
+}
+
+const raw = await getProduct(slug);
+if (!raw) {
+  return Astro.redirect('/404');
+}
+
+const expectedFiber = getFiberPath(raw);
+if (expectedFiber !== fiber) {
+  return Astro.redirect(getProductPath(raw), 301);
+}
+
+const product = enrichProductProfile(raw);
+const related = await getRelatedProducts(raw, 2);
+const productPath = getProductPath(raw);
+const canonical = new URL(productPath, Astro.site).href;
+const image = product.images[0];
+const composition = product.facts.find((item) => /composici/i.test(item.name))?.value;
+const fiberStory = getFiberStory(fiber);
+---
+
+<BaseLayout title={product.name} description={product.shortDescription} canonical={canonical} schema={productSchema(product, canonical)}>
+  <Trail
+    items={[
+      { label: 'Inicio', href: '/' },
+      { label: 'Tienda', href: '/tienda/' },
+      { label: fiberLabel(fiber), href: `/${fiber}/` },
+      { label: product.name },
+    ]}
+  />
+
+  <article class="product-detail shell">
+    <section class="product-gallery" aria-label={`Galería de ${product.name}`}>
+      {product.images.map((item, index) => (
+        <figure class:list={{ 'is-hero': index === 0 && product.images.length > 1 }}>
+          <img
+            src={item.src}
+            alt={item.alt}
+            width="1120"
+            height="1400"
+            loading={index === 0 ? 'eager' : 'lazy'}
+            fetchpriority={index === 0 ? 'high' : 'auto'}
+            decoding="async"
+          />
+        </figure>
+      ))}
+    </section>
+
+    <section class="product-summary">
+      <p class="eyebrow">{product.eyebrow}</p>
+      <h1>{product.name}</h1>
+      <p class="product-price">{formatCLP(product.price)}</p>
+      {product.shortDescription && <p class="product-lede">{product.shortDescription}</p>}
+      <p class="product-description">{product.description}</p>
+
+      {product.senses.length > 0 && (
+        <section class="product-senses" aria-label="Indicadores sensoriales">
+          <p class="product-senses-kicker">Cómo se siente</p>
+          <ul class="product-sense-grid">
+            {product.senses.map((sense) => {
+              const value = sense.value.replace(/\s*·\s*[1-5]\s*\/\s*5/, '').trim();
+              return (
+                <li class="product-sense">
+                  <p class="product-sense-label">{sense.label}</p>
+                  <p class="product-sense-value">{value}</p>
+                  {typeof sense.level === 'number' ? (
+                    <div
+                      class="product-sense-meter"
+                      role="img"
+                      aria-label={`${sense.label}: ${sense.level} de 5`}
+                    >
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        <span class:list={['product-sense-pip', { 'is-on': index < (sense.level || 0) }]} />
+                      ))}
+                      <span class="product-sense-level">{sense.level}/5</span>
+                    </div>
+                  ) : (
+                    <p class="product-sense-hint">Al tacto</p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {(product.promise || product.idealFor) && (
+        <section class="product-motive" aria-label="Por qué elegirla">
+          {product.promise && (
+            <blockquote class="product-promise">
+              <p class="product-motive-kicker">Por qué elegirla</p>
+              <p>{product.promise}</p>
+            </blockquote>
+          )}
+          {product.idealFor && (
+            <p class="product-ideal">
+              <span>Ideal para</span>
+              {product.idealFor}
+            </p>
+          )}
+        </section>
+      )}
+
+      {(composition || product.finish) && (
+        <ul class="product-highlights">
+          {composition && (
+            <li>
+              <span>Composición</span>
+              {composition}
+            </li>
+          )}
+          {product.finish && (
+            <li>
+              <span>Acabado</span>
+              {product.finish}
+            </li>
+          )}
+        </ul>
+      )}
+
+      {product.stockStatus === 'instock' ? (
+        <p class="stock-note">Disponible · Edición limitada</p>
+      ) : (
+        <p class="stock-note is-out">Agotada por ahora</p>
+      )}
+
+      <button
+        class="button"
+        type="button"
+        disabled={product.stockStatus === 'outofstock'}
+        data-add-to-cart
+        data-product-id={product.id}
+        data-sku={product.sku}
+        data-slug={product.slug}
+        data-path={productPath}
+        data-name={product.name}
+        data-price={product.price}
+        data-image={image?.src}
+      >
+        {product.stockStatus === 'outofstock' ? 'Producto agotado' : 'Agregar al carro'}
+        <Icon name="arrow-right" size={14} />
+      </button>
+
+      <div class="buy-dock">
+        <div>
+          <p>{product.name}</p>
+          <strong>{formatCLP(product.price)}</strong>
+        </div>
+        <button
+          class="button"
+          type="button"
+          disabled={product.stockStatus === 'outofstock'}
+          data-add-to-cart
+          data-product-id={product.id}
+          data-sku={product.sku}
+          data-slug={product.slug}
+          data-path={productPath}
+          data-name={product.name}
+          data-price={product.price}
+          data-image={image?.src}
+        >
+          {product.stockStatus === 'outofstock' ? 'Agotado' : 'Agregar'}
+        </button>
+      </div>
+
+      <div class="product-meta">
+        <details open>
+          <summary>Materia y detalle</summary>
+          {product.facts.length > 0 ? (
+            <dl>
+              {product.facts.map((attribute) => (
+                <div>
+                  <dt>{attribute.name}</dt>
+                  <dd>{attribute.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p>Los atributos de materia se editan en WooCommerce.</p>
+          )}
+        </details>
+        <details>
+          <summary>Cuidado</summary>
+          {product.care.length > 0 ? (
+            <ul>{product.care.map((item) => <li>{item}</li>)}</ul>
+          ) : (
+            <p>Publica el atributo “Cuidado” en WooCommerce para mostrar las indicaciones aquí.</p>
+          )}
+        </details>
+        <details>
+          <summary>Despacho y cambios</summary>
+          <p>
+            Despachamos a todo Chile. El envío se coordina contigo tras el pago. Revisa
+            <a href="/despachos/"> despachos</a> y
+            <a href="/cambios-y-devoluciones/"> cambios</a>.
+          </p>
+        </details>
+      </div>
+    </section>
+  </article>
+
+  {
+    fiberStory && (
+      <div class="shell product-fiber-educate">
+        <FiberEducate story={fiberStory} compact />
+      </div>
+    )
+  }
+
+  <SectionHeading eyebrow="También podría gustarte" title="Continúa explorando la materia." />
+  <section class="product-grid" aria-label="Productos relacionados">
+    {related.map((item, index) => <ProductCard product={item} index={index} />)}
+  </section>
+
+  <script is:inline define:vars={{ product: { sku: product.sku, name: product.name, price: product.price } }}>
+    window.dataLayer?.push({
+      event: 'view_item',
+      ecommerce: {
+        currency: 'CLP',
+        value: product.price,
+        items: [{ item_id: product.sku, item_name: product.name, price: product.price, quantity: 1 }],
+      },
+    });
+  </script>
+</BaseLayout>

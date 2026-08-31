@@ -1,0 +1,159 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+
+const founders = [
+  {
+    id: 'nico',
+    name: 'Nico',
+    role: 'Sofisticación',
+    index: '01',
+    epithet: 'El criterio que edita el silencio',
+    lead:
+      'Nico mira antes de tocar. Su sofisticación no es ornamento: es el filtro que deja fuera lo que solo parece noble.',
+    body: [
+      'En Casa Trama sostiene la línea invisible entre deseo y permanencia. Sabe cuándo una pieza habla demasiado y cuándo basta con la caída justa.',
+      'Su mirada es editorial: tono, proporción, materia. Si algo no resiste el tiempo —ni el tacto en silencio— no entra a la casa.',
+    ],
+    senses: ['Criterio', 'Proporción', 'Calma visual'],
+    image: '/images/hero-materia.webp',
+    imageAlt: 'Detalle de textura noble bajo luz suave',
+    align: 'left' as const,
+  },
+  {
+    id: 'romi',
+    name: 'Romi',
+    role: 'Experiencias',
+    index: '02',
+    epithet: 'La prueba que solo da el vivir',
+    lead:
+      'Romi no elige desde el escaparate: elige desde el cuerpo que camina, viaja, se abriga y recuerda.',
+    body: [
+      'Lleva la fibra al mundo real —mañanas frías, mesas largas, paisajes que piden abrigo sin peso—. Cada hallazgo pasa por su experiencia antes de volverse pieza.',
+      'Su oficio es traducir lo vivido en certeza: si una trama acompaña de verdad, lo sabes cuando la usas, no cuando la describes.',
+    ],
+    senses: ['Viaje', 'Tacto vivido', 'Memoria'],
+    image: '/images/altiplano-origen.webp',
+    imageAlt: 'Altiplano andino al amanecer',
+    align: 'right' as const,
+  },
+  {
+    id: 'mar',
+    name: 'Mar',
+    role: 'Tech sibarita',
+    index: '03',
+    epithet: 'El placer con precisión',
+    lead:
+      'Mar une el goce de lo sensorial con la exactitud de lo invisible: sistemas, rutas, detalles que nadie ve hasta que fallan.',
+    body: [
+      'Es la sibarita que exige belleza y la tech que exige claridad. En Casa Trama diseña el tejido digital —pedido, pago, cuidado— para que la experiencia se sienta tan limpia como la fibra.',
+      'Su lujo no es ruido: es que todo funcione con elegancia, y que el placer de elegir una pieza nunca se quiebre en el camino.',
+    ],
+    senses: ['Sistemas', 'Sensorial', 'Exactitud'],
+    image: '/images/hero-algodon.webp',
+    imageAlt: 'Textil de algodón en un interior sereno',
+    align: 'left' as const,
+  },
+];
+---
+
+<BaseLayout
+  title="Nosotras"
+  description="Nico, Romi y Mar: tres miradas — sofisticación, experiencias y tech sibarita — que tejen Casa Trama desde el sur de Chile."
+>
+  <article class="nosotras">
+    <header class="nosotras-hero">
+      <img
+        class="nosotras-hero-image"
+        src="/images/casa-trama-hero.webp"
+        alt=""
+        width="1600"
+        height="1000"
+        fetchpriority="high"
+      />
+      <div class="nosotras-hero-veil" aria-hidden="true"></div>
+      <div class="shell nosotras-hero-inner">
+        <p class="nosotras-brand">Casa Trama</p>
+        <h1>Nosotras</h1>
+        <p class="nosotras-lede">Tres miradas. Una trama.</p>
+        <a class="nosotras-hero-cta" href="#nosotras-index">
+          Conocerlas
+          <Icon name="chevron" size={14} />
+        </a>
+      </div>
+    </header>
+
+    <nav class="nosotras-index shell" id="nosotras-index" aria-label="Las tres de Casa Trama">
+      {
+        founders.map((person) => (
+          <a class="nosotras-index-item" href={`#${person.id}`}>
+            <span class="nosotras-index-num">{person.index}</span>
+            <span class="nosotras-index-name">{person.name}</span>
+            <span class="nosotras-index-role">{person.role}</span>
+          </a>
+        ))
+      }
+    </nav>
+
+    <section class="nosotras-manifesto shell">
+      <p class="eyebrow">Desde Puerto Varas</p>
+      <h2>No somos una sola voz. Somos el cruce donde el criterio, lo vivido y lo preciso se vuelven casa.</h2>
+    </section>
+
+    {
+      founders.map((person) => (
+        <section
+          class:list={['nosotras-portrait', `is-${person.align}`]}
+          id={person.id}
+          aria-labelledby={`${person.id}-name`}
+        >
+          <div class="nosotras-portrait-media">
+            <img src={person.image} alt={person.imageAlt} width="900" height="1200" loading="lazy" />
+            <span class="nosotras-monogram" aria-hidden="true">
+              {person.name.charAt(0)}
+            </span>
+          </div>
+          <div class="nosotras-portrait-copy">
+            <p class="nosotras-portrait-meta">
+              <span>{person.index}</span>
+              <span>{person.role}</span>
+            </p>
+            <h2 id={`${person.id}-name`}>{person.name}</h2>
+            <p class="nosotras-epithet">{person.epithet}</p>
+            <p class="nosotras-lead">{person.lead}</p>
+            {person.body.map((paragraph) => (
+              <p>{paragraph}</p>
+            ))}
+            <ul class="nosotras-senses">
+              {person.senses.map((sense) => (
+                <li>{sense}</li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ))
+    }
+
+    <section class="nosotras-close">
+      <div class="shell nosotras-close-inner">
+        <p class="eyebrow">La trama</p>
+        <h2>
+          Nico edita.
+          <em> Romi prueba.</em>
+          Mar afina.
+        </h2>
+        <p>
+          Juntas cuidan que cada pieza que llega a tus manos tenga criterio, experiencia y una experiencia
+          digital tan noble como la materia.
+        </p>
+        <div class="action-row">
+          <a class="button" href="/tienda/">
+            Ver piezas
+            <Icon name="arrow-right" size={14} />
+          </a>
+          <a class="button-secondary" href="/contacto/">Escribirnos</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</BaseLayout>

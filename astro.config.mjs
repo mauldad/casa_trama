@@ -1,6 +1,9 @@
 import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
 import sitemap from '@astrojs/sitemap';
+import { getCatalogSitemapPages } from './scripts/sitemap-catalog.mjs';
+
+const catalogPages = await getCatalogSitemapPages();
 
 export default defineConfig({
   site: process.env.SITE_URL || 'https://casatrama.cl',
@@ -10,9 +13,20 @@ export default defineConfig({
     sitemap({
       filter: (page) =>
         !page.includes('/carro') &&
+        !page.includes('/carrito') &&
         !page.includes('/checkout') &&
         !page.includes('/pedido/') &&
-        !page.includes('/api/'),
+        !page.includes('/api/') &&
+        !page.includes('/feeds/') &&
+        !page.includes('/privacidad') &&
+        !page.includes('/terminos'),
+      customPages: catalogPages,
+      serialize(item) {
+        return {
+          ...item,
+          lastmod: item.lastmod ?? new Date(),
+        };
+      },
     }),
   ],
   image: {
@@ -31,6 +45,7 @@ export default defineConfig({
         'cookie',
         'clsx',
         'zod',
+        '@netlify/blobs',
         '@fontsource/dm-sans',
         '@fontsource/cormorant-garamond',
       ],

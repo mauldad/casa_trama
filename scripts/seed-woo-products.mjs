@@ -8,6 +8,14 @@
  * Optional:
  *   WP_URL=https://blog.casatrama.cl
  *   IMAGE_BASE=https://casa-trama.netlify.app
+ *
+ * Atributos que la ficha de producto lee desde Woo (editables en el admin):
+ *   Sensación, Tacto, Calidez, Peso, Caída, Densidad  → indicadores “Cómo se siente”
+ *   Promesa                                            → bloque “Por qué elegirla”
+ *   Ideal para                                         → contexto de uso
+ *   Terminación / Acabado, Composición, Color, Origen  → materia y detalle
+ *   Cuidado                                            → cuidados
+ * Tip: en Calidez/Peso puedes usar “Alta · 4/5” para el medidor visual.
  */
 
 const WP_URL = (process.env.WP_URL || 'https://blog.casatrama.cl').replace(/\/$/, '');
@@ -62,8 +70,19 @@ const products = [
     attributes: [
       { name: 'Composición', visible: true, options: ['100% baby alpaca'] },
       { name: 'Tacto', visible: true, options: ['Suave, fino y liviano'] },
+      { name: 'Sensación', visible: true, options: ['Calor seco que no pesa'] },
+      { name: 'Calidez', visible: true, options: ['Alta · 4/5'] },
+      { name: 'Peso', visible: true, options: ['Liviano · 2/5'] },
+      { name: 'Caída', visible: true, options: ['Envolvente y fluida'] },
       { name: 'Color', visible: true, options: ['Ocre camel'] },
+      { name: 'Origen', visible: true, options: ['Selección andina'] },
       { name: 'Terminación', visible: true, options: ['Flecos delicados'] },
+      { name: 'Ideal para', visible: true, options: ['Mañanas frías, atardeceres al aire libre, capas sobre camisa o vestido'] },
+      {
+        name: 'Promesa',
+        visible: true,
+        options: ['Abriga sin imponer. La pieza que eliges cuando quieres presencia suave, no volumen.'],
+      },
       { name: 'Cuidado', visible: true, options: ['Lavar a mano con agua fría', 'No retorcer', 'Secar extendida a la sombra'] },
     ],
     tags: [{ name: 'Destacado' }],
@@ -74,7 +93,7 @@ const products = [
   },
   {
     name: 'Bufanda Esencia Baby Alpaca',
-    slug: 'bufanda-esencia-baby-alpaca',
+    slug: 'bufanda-baby-alpaca',
     type: 'simple',
     status: 'publish',
     featured: true,
@@ -97,8 +116,21 @@ const products = [
     attributes: [
       { name: 'Composición', visible: true, options: ['100% baby alpaca'] },
       { name: 'Tacto', visible: true, options: ['Suave y abrigado'] },
+      { name: 'Sensación', visible: true, options: ['Abrigar sin peso: como una segunda piel serena'] },
+      { name: 'Calidez', visible: true, options: ['Alta · 5/5'] },
+      { name: 'Peso', visible: true, options: ['Muy liviano · 1/5'] },
+      { name: 'Caída', visible: true, options: ['Natural, se acomoda al cuello'] },
+      { name: 'Densidad', visible: true, options: ['Trama fina y uniforme'] },
       { name: 'Color', visible: true, options: ['Camel'] },
       { name: 'Origen', visible: true, options: ['Selección andina'] },
+      { name: 'Ideal para', visible: true, options: ['Invierno diario, viaje, ciudad y paisaje'] },
+      {
+        name: 'Promesa',
+        visible: true,
+        options: [
+          'La bufanda que se siente noble al primer contacto y se vuelve hábito: calor limpio, sin prurito ni exceso.',
+        ],
+      },
       { name: 'Cuidado', visible: true, options: ['Lavar a mano con agua fría', 'Usar jabón neutro', 'Guardar doblada'] },
     ],
     tags: [{ name: 'Destacado' }],
@@ -132,8 +164,17 @@ const products = [
     attributes: [
       { name: 'Composición', visible: true, options: ['Algodón, alpaca y lana'] },
       { name: 'Tacto', visible: true, options: ['Suave con cuerpo'] },
+      { name: 'Sensación', visible: true, options: ['Frescura contenida y textura serena'] },
+      { name: 'Calidez', visible: true, options: ['Media · 3/5'] },
+      { name: 'Peso', visible: true, options: ['Ligero con estructura · 3/5'] },
+      { name: 'Caída', visible: true, options: ['Definida, mantiene forma'] },
       { name: 'Color', visible: true, options: ['Azul niebla'] },
-      { name: 'Uso', visible: true, options: ['Media estación e invierno'] },
+      { name: 'Ideal para', visible: true, options: ['Media estación e invierno suave'] },
+      {
+        name: 'Promesa',
+        visible: true,
+        options: ['Versátil sin parecer genérica: la mezcla que acompaña el día completo.'],
+      },
       { name: 'Cuidado', visible: true, options: ['Lavar a mano', 'No usar blanqueador', 'Secar en superficie plana'] },
     ],
     tags: [{ name: 'Destacado' }],

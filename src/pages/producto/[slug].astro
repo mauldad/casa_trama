@@ -1,94 +1,13 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import ProductCard from '@/components/ProductCard.astro';
-import SectionHeading from '@/components/SectionHeading.astro';
-import Trail from '@/components/Trail.astro';
-import Icon from '@/components/Icon.astro';
-import { getProduct, getRelatedProducts } from '@/lib/commerce';
-import { formatCLP } from '@/lib/format';
-import { productSchema } from '@/lib/seo';
+import { getProduct } from '@/lib/commerce';
+import { getProductPath } from '@/lib/product-path';
 
 const { slug } = Astro.params;
 const product = slug ? await getProduct(slug) : undefined;
-if (!product) return Astro.redirect('/404');
 
-const related = await getRelatedProducts(product, 2);
-const canonical = new URL(`/producto/${product.slug}/`, Astro.site).href;
-const image = product.images[0];
+if (product) {
+  return Astro.redirect(getProductPath(product), 301);
+}
+
+return Astro.redirect('/tienda/', 301);
 ---
-
-<BaseLayout title={product.name} description={product.shortDescription} canonical={canonical} schema={productSchema(product, canonical)}>
-  <Trail items={[{ label: 'Inicio', href: '/' }, { label: 'Tienda', href: '/tienda/' }, { label: product.name }]} />
-  <article class="product-detail shell">
-    <section class="product-gallery" aria-label={`Galería de ${product.name}`}>
-      {product.images.map((item) => <figure><img src={item.src} alt={item.alt} width="1120" height="1400" /></figure>)}
-    </section>
-    <section class="product-summary">
-      <p class="eyebrow">{product.eyebrow}</p>
-      <h1>{product.name}</h1>
-      <p class="product-price">{formatCLP(product.price)}</p>
-      <p class="product-description">{product.description}</p>
-      {product.stockStatus === 'instock' && <p class="stock-note">Disponible para despacho</p>}
-      <button
-        class="button"
-        type="button"
-        disabled={product.stockStatus === 'outofstock'}
-        data-add-to-cart
-        data-product-id={product.id}
-        data-sku={product.sku}
-        data-slug={product.slug}
-        data-name={product.name}
-        data-price={product.price}
-        data-image={image?.src}
-      >{product.stockStatus === 'outofstock' ? 'Producto agotado' : 'Agregar al carro'} <Icon name="arrow-right" size={14} /></button>
-      <div class="buy-dock">
-        <div>
-          <p>{product.name}</p>
-          <strong>{formatCLP(product.price)}</strong>
-        </div>
-        <button
-          class="button"
-          type="button"
-          disabled={product.stockStatus === 'outofstock'}
-          data-add-to-cart
-          data-product-id={product.id}
-          data-sku={product.sku}
-          data-slug={product.slug}
-          data-name={product.name}
-          data-price={product.price}
-          data-image={image?.src}
-        >{product.stockStatus === 'outofstock' ? 'Agotado' : 'Agregar'}</button>
-      </div>
-      <div class="product-meta">
-        <details open>
-          <summary>Composición y textura</summary>
-          <dl>{product.attributes.map((attribute) => <div><dt>{attribute.name}</dt><dd>{attribute.value}</dd></div>)}</dl>
-        </details>
-        <details>
-          <summary>Cuidado</summary>
-          {product.care.length > 0 ? (
-            <ul>{product.care.map((item) => <li>{item}</li>)}</ul>
-          ) : (
-            <p>Las indicaciones de cuidado se publican desde WooCommerce en el atributo “Cuidado”.</p>
-          )}
-        </details>
-        <details>
-          <summary>Despacho y cambios</summary>
-          <p>Despachamos a todo Chile. Verás el costo y plazo estimado antes de pagar. Revisa nuestra política de cambios y devoluciones.</p>
-        </details>
-      </div>
-    </section>
-  </article>
-
-  <SectionHeading eyebrow="También podría gustarte" title="Continúa explorando la materia." />
-  <section class="product-grid" aria-label="Productos relacionados">
-    {related.map((item, index) => <ProductCard product={item} index={index} />)}
-  </section>
-
-  <script is:inline define:vars={{ product: { sku: product.sku, name: product.name, price: product.price } }}>
-    window.dataLayer?.push({
-      event: 'view_item',
-      ecommerce: { currency: 'CLP', value: product.price, items: [{ item_id: product.sku, item_name: product.name, price: product.price, quantity: 1 }] },
-    });
-  </script>
-</BaseLayout>

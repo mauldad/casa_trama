@@ -31,13 +31,19 @@ export const webpayPaymentProvider: PaymentProvider = {
     const sessionId = buildSessionId(order.idempotencyKey);
     const response = await transaction.create(buyOrder, sessionId, order.amount, order.returnUrl);
 
-    savePaymentSession(response.token, {
+    await savePaymentSession(response.token, {
       orderId: order.orderId,
       orderToken: order.orderToken || String(order.orderId),
       amount: order.amount,
       buyOrder,
       idempotencyKey: order.idempotencyKey,
       customerEmail: order.customerEmail,
+      customer: order.customer || {
+        email: order.customerEmail,
+        firstName: '',
+        lastName: '',
+      },
+      items: order.items || [],
       status: 'pending',
       createdAt: new Date().toISOString(),
     });
@@ -68,7 +74,7 @@ export const webpayPaymentProvider: PaymentProvider = {
     const transaction = createWebpayTransaction();
     const result = (await transaction.commit(payload.token)) as TransbankCommitResponse;
     const status = mapCommitToStatus(result);
-    updatePaymentSessionStatus(payload.token, status, result.authorization_code);
+    await updatePaymentSessionStatus(payload.token, status, result.authorization_code);
 
     return {
       reference: payload.token,
@@ -86,7 +92,7 @@ export const webpayPaymentProvider: PaymentProvider = {
       amount >= (await this.getPaymentStatus(reference)).amount
         ? 'refunded_total'
         : 'refunded_partial';
-    updatePaymentSessionStatus(reference, status);
+    await updatePaymentSessionStatus(reference, status);
     return { reference, status, amount };
   },
 

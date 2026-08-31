@@ -1,3 +1,5 @@
+import type { PaymentCustomer, PaymentLineItem } from '@/types/payment-session';
+
 export type NormalizedPaymentStatus =
   | 'pending'
   | 'processing'
@@ -15,6 +17,8 @@ export interface PaymentOrder {
   returnUrl: string;
   idempotencyKey: string;
   orderToken?: string;
+  customer?: PaymentCustomer;
+  items?: PaymentLineItem[];
 }
 
 export interface PaymentSession {

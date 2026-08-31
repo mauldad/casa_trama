@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
-import { Resend } from 'resend';
+import { getEmailFrom, getResendClient, escapeHtml } from '@/lib/email/resend';
+import { emailShell, prose } from '@/lib/email/templates';
+import { runtimeEnv } from '@/lib/runtime-env';
 
 interface ContactBody {
   name?: string;
@@ -19,15 +21,6 @@ const topicLabels: Record<string, string> = {
 };
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-
-const escapeHtml = (value: string) =>
-  value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = (await request.json()) as ContactBody;
@@ -58,19 +51,14 @@ export const POST: APIRoute = async ({ request }) => {
     if (!message || message.length < 8 || message.length > 4000) {
       return new Response(JSON.stringify({ error: 'Mensaje inválido.' }), { status: 400 });
     }
-    if (phone.length > 40) {
-      return new Response(JSON.stringify({ error: 'Teléfono inválido.' }), { status: 400 });
+
+    const resend = getResendClient();
+    if (!resend) {
+      return new Response(JSON.stringify({ error: 'Correo no configurado.' }), { status: 503 });
     }
 
-    const apiKey = import.meta.env.RESEND_API_KEY;
-    if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'El envío no está configurado todavía.' }), {
-        status: 503,
-      });
-    }
-
-    const to = import.meta.env.CONTACT_TO_EMAIL || 'hola@casatrama.cl';
-    const from = import.meta.env.RESEND_FROM_EMAIL || 'Casa Trama <onboarding@resend.dev>';
+    const to = runtimeEnv('CONTACT_TO_EMAIL', 'hola@casatrama.cl');
+    const from = getEmailFrom();
     const topicLabel = topicLabels[topic];
     const idempotencyKey = `contact/${email}/${topic}/${Math.floor(Date.now() / 60_000)}`;
 
@@ -85,20 +73,23 @@ export const POST: APIRoute = async ({ request }) => {
       .filter(Boolean)
       .join('\n');
 
-    const html = `
-      <div style="font-family: Georgia, serif; color: #171713; line-height: 1.6;">
-        <p style="font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #725033;">Contacto Casa Trama</p>
-        <h1 style="font-weight: 400; font-size: 28px; margin: 8px 0 24px;">Nuevo mensaje</h1>
-        <p><strong>Nombre:</strong> ${escapeHtml(name)}</p>
-        <p><strong>Correo:</strong> ${escapeHtml(email)}</p>
-        ${phone ? `<p><strong>Teléfono:</strong> ${escapeHtml(phone)}</p>` : ''}
-        <p><strong>Tema:</strong> ${escapeHtml(topicLabel)}</p>
-        <hr style="border: 0; border-top: 1px solid #e0d8cc; margin: 24px 0;" />
-        <p style="white-space: pre-wrap;">${escapeHtml(message)}</p>
-      </div>
-    `.trim();
+    const html = emailShell({
+      title: 'Nuevo mensaje',
+      preview: `${name} · ${topicLabel}`,
+      eyebrow: 'Contacto · Casa Trama',
+      body: `
+        ${prose(`Llegó un mensaje desde el sitio.`)}
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:22px 0 0;">
+          <tr><td style="padding:6px 0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#725033;width:38%;">Nombre</td><td style="padding:6px 0;font-size:14px;">${escapeHtml(name)}</td></tr>
+          <tr><td style="padding:6px 0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#725033;">Correo</td><td style="padding:6px 0;font-size:14px;">${escapeHtml(email)}</td></tr>
+          ${phone ? `<tr><td style="padding:6px 0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#725033;">Teléfono</td><td style="padding:6px 0;font-size:14px;">${escapeHtml(phone)}</td></tr>` : ''}
+          <tr><td style="padding:6px 0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#725033;">Tema</td><td style="padding:6px 0;font-size:14px;">${escapeHtml(topicLabel)}</td></tr>
+        </table>
+        <div style="margin:28px 0 0;padding:18px;background:#f7f2e8;border:1px solid #ddd2c0;font-size:15px;line-height:1.7;white-space:pre-wrap;">${escapeHtml(message)}</div>
+      `,
+      footerNote: 'Responder este correo escribe directamente a quien contactó.',
+    });
 
-    const resend = new Resend(apiKey);
     const { data, error } = await resend.emails.send(
       {
         from,

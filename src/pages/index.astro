@@ -7,6 +7,7 @@ import Icon from '@/components/Icon.astro';
 import QrCode from '@/components/QrCode.astro';
 import { getProducts } from '@/lib/commerce';
 import { getLatestPost } from '@/lib/wordpress';
+import { websiteSchema } from '@/lib/seo';
 
 const products = await getProducts({ featured: true });
 const latestStory = await getLatestPost();
@@ -27,18 +28,24 @@ const marqueePhrases = [
 ---
 
 <BaseLayout
-  title="Casa Trama"
-  description="Textiles de fibras nobles elegidos por su textura, caída y permanencia. Casa Trama, desde el sur de Chile."
+  title="Curatoría de Ropa de Fibras Naturales en Chile| Casa Trama"
+  description="Descubre nuestra selección de ropa de fibras naturales. Curamos piezas en baby alpaca, algodón pima y materiales nobles que combinan calidad y durabilidad."
+  schema={websiteSchema}
 >
-  <h1 class="sr-only">Casa Trama — Curaduría de fibras nobles</h1>
-  <section class="home-hero" aria-label="Curaduría de fibras" data-hero-fade>
-    <a class="hero-panel is-active" href="/guias/fibras-nobles/">
+  <Fragment slot="head">
+    <link rel="preload" as="image" href="/images/hero-alpaca.webp" fetchpriority="high" type="image/webp" />
+    <link rel="preload" as="image" href="/images/hero-algodon.webp" type="image/webp" />
+  </Fragment>
+  <section class="home-hero" aria-label="Curatoría de fibras" data-hero-fade>
+    <a class="hero-panel is-active" href="/alpaca/">
       <img
         src="/images/hero-alpaca.webp"
         alt="Textil de alpaca drapeado sobre una rama frente a un lago del sur"
         width="1200"
         height="1600"
         fetchpriority="high"
+        decoding="async"
+        data-no-soft
       />
       <p class="hero-kicker">Exterior / 01</p>
       <div class="hero-panel-copy">
@@ -53,6 +60,9 @@ const marqueePhrases = [
         alt="Textil de algodón sobre una silla de madera en un interior silencioso"
         width="1200"
         height="1600"
+        decoding="async"
+        fetchpriority="low"
+        data-no-soft
       />
       <p class="hero-kicker">Tejido / 02</p>
       <div class="hero-panel-copy">
@@ -61,12 +71,15 @@ const marqueePhrases = [
         <span class="hero-explore">Explorar <Icon name="arrow-ne" size={12} /></span>
       </div>
     </a>
-    <a class="hero-panel" href="/casa-trama/">
+    <a class="hero-panel" href="/nosotras/">
       <img
         src="/images/hero-materia.webp"
         alt="Detalle de textura de fibra noble en tejido natural"
         width="819"
         height="1024"
+        decoding="async"
+        fetchpriority="low"
+        data-no-soft
       />
       <p class="hero-kicker">Textura / 03</p>
       <div class="hero-panel-copy">
@@ -77,12 +90,18 @@ const marqueePhrases = [
     </a>
   </section>
 
-  <section class="home-quote" aria-labelledby="home-quote-text">
-    <p class="home-quote-credit">Casa Trama / Materia consciente</p>
-    <p class="home-quote-text" id="home-quote-text">
-      Vestir también es recordar una sensación: la luz de la mañana, el aire frío y una fibra suave que acompaña sin imponerse.
+  <section class="home-intro shell" aria-labelledby="home-intro-title">
+    <p class="home-intro-credit">Casa Trama / Chile</p>
+    <h1 id="home-intro-title">
+      Curatoría o tienda de ropa en fibras naturales y materiales nobles
+    </h1>
+    <p class="home-intro-lede">
+      En Casa Trama nos dedicamos a buscar, seleccionar y poner a tu alcance prendas esenciales
+      confeccionadas con materias primas de la más alta calidad. Desde la calidez y liviandad del
+      baby alpaca hasta la suave resistencia del algodón pima, nuestra colección reúne una cuidada
+      variedad de piezas diseñadas para acompañarte a lo largo del tiempo.
     </p>
-    <a class="home-quote-link" href="/casa-trama/">Conocer nuestra mirada /</a>
+    <a class="home-intro-link" href="/nosotras/">Conocer nuestra mirada /</a>
   </section>
 
   <section class="home-finds" aria-labelledby="home-finds-title">
@@ -113,7 +132,7 @@ const marqueePhrases = [
         </figcaption>
       </figure>
       <figure class="home-finds-shot">
-        <a class="home-finds-shot-link" href="/producto/estola-luz-de-ocre/">
+        <a class="home-finds-shot-link" href="/alpaca/estola-luz-de-ocre/">
           <img
             src="/images/hallazgo-alpaca-02.webp"
             alt="Estola Luz de Ocre en camel mostaza, sobre paisaje de bosque"
@@ -123,7 +142,7 @@ const marqueePhrases = [
         </a>
         <figcaption class="home-finds-caption">
           <p class="home-finds-tone">Camel mostaza</p>
-          <h3><a href="/producto/estola-luz-de-ocre/">Estola Luz de Ocre</a></h3>
+          <h3><a href="/alpaca/estola-luz-de-ocre/">Estola Luz de Ocre</a></h3>
           <p class="home-finds-price">$79.000</p>
         </figcaption>
       </figure>
@@ -146,7 +165,7 @@ const marqueePhrases = [
         Una estola sobre los hombros antes de salir. Algodón fresco cuando la tarde se vuelve lenta.
         Elegimos piezas que hacen de lo cotidiano una experiencia íntima, delicada y duradera.
       </p>
-      <a class="home-gaze-link" href="/casa-trama/">Descubrir nuestra curaduría /</a>
+      <a class="home-gaze-link" href="/nosotras/">Descubrir nuestra curaduría /</a>
     </div>
   </section>
 
@@ -241,7 +260,7 @@ const marqueePhrases = [
           summary="Resistencia, ligereza y calidez de origen andino."
           tone="ember"
           icon="alpaca"
-          href="/guias/fibras-nobles/"
+          href="/alpaca/"
           traits={[
             { label: 'Suavidad', value: 'Alta' },
             { label: 'Calidez', value: 'Alta' },
@@ -256,7 +275,7 @@ const marqueePhrases = [
           summary="Frescura, suavidad cotidiana y una caída natural."
           tone="cream"
           icon="touch"
-          href="/guias/fibras-nobles/"
+          href="/algodon/"
           traits={[
             { label: 'Suavidad', value: 'Alta' },
             { label: 'Frescura', value: 'Muy alta' },

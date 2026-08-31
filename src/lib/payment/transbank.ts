@@ -1,14 +1,15 @@
 import transbank from 'transbank-sdk';
+import { runtimeEnv, runtimeSecret } from '@/lib/runtime-env';
 import type { NormalizedPaymentStatus } from '@/types/payment';
 
 const { IntegrationApiKeys, IntegrationCommerceCodes, WebpayPlus } = transbank;
 
 export function createWebpayTransaction() {
-  const env = import.meta.env.TRANSBANK_ENV ?? 'integration';
+  const env = runtimeEnv('TRANSBANK_ENV', 'integration');
 
   if (env === 'production') {
-    const commerceCode = import.meta.env.TRANSBANK_COMMERCE_CODE;
-    const apiKey = import.meta.env.TRANSBANK_API_KEY;
+    const commerceCode = runtimeSecret('TRANSBANK_COMMERCE_CODE');
+    const apiKey = runtimeSecret('TRANSBANK_API_KEY');
     if (!commerceCode || !apiKey) {
       throw new Error('Faltan TRANSBANK_COMMERCE_CODE o TRANSBANK_API_KEY para producción.');
     }
@@ -16,13 +17,13 @@ export function createWebpayTransaction() {
   }
 
   return WebpayPlus.Transaction.buildForIntegration(
-    import.meta.env.TRANSBANK_COMMERCE_CODE || IntegrationCommerceCodes.WEBPAY_PLUS,
-    import.meta.env.TRANSBANK_API_KEY || IntegrationApiKeys.WEBPAY,
+    runtimeSecret('TRANSBANK_COMMERCE_CODE') || IntegrationCommerceCodes.WEBPAY_PLUS,
+    runtimeSecret('TRANSBANK_API_KEY') || IntegrationApiKeys.WEBPAY,
   );
 }
 
 export function getSiteUrl() {
-  return (import.meta.env.SITE_URL || 'http://localhost:4321').replace(/\/$/, '');
+  return runtimeEnv('SITE_URL', 'http://localhost:4321').replace(/\/$/, '');
 }
 
 /** buy_order de Transbank admite máximo 26 caracteres. */

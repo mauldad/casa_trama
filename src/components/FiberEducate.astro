@@ -1,0 +1,62 @@
+---
+import Icon from '@/components/Icon.astro';
+import type { FiberStory } from '@/data/fiber-stories';
+
+interface Props {
+  story: FiberStory;
+  compact?: boolean;
+}
+
+const { story, compact = false } = Astro.props;
+---
+
+<section class:list={['fiber-educate', { 'is-compact': compact }]} aria-labelledby={`fiber-educate-${story.id}`}>
+  <div class="fiber-educate-intro">
+    <p class="eyebrow">{story.kicker}</p>
+    <h2 id={`fiber-educate-${story.id}`}>{story.headline}</h2>
+    <p class="fiber-educate-lede">{story.lede}</p>
+  </div>
+
+  <div class="fiber-educate-body">
+    <p class="fiber-educate-what">{story.whatItIs}</p>
+
+    <aside class="fiber-myth" aria-label="Una precisión que conviene saber">
+      <p class="fiber-myth-claim">{story.myth.claim}</p>
+      <p class="fiber-myth-truth">{story.myth.truth}</p>
+    </aside>
+
+    {
+      !compact && (
+        <ul class="fiber-traits">
+          {story.traits.map((trait) => (
+            <li>
+              <span>{trait.label}</span>
+              {trait.value}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    <ul class="fiber-benefits">
+      {
+        (compact ? story.benefits.slice(0, 3) : story.benefits).map((benefit) => (
+          <li>
+            <span class="fiber-benefit-icon" aria-hidden="true">
+              <Icon name={benefit.icon} size={16} />
+            </span>
+            <div>
+              <h3>{benefit.title}</h3>
+              <p>{benefit.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="fiber-educate-close">{story.closing}</p>
+    <a class="text-link" href={story.guideHref}>
+      Leer la guía de fibras <Icon name="arrow-ne" size={11} />
+    </a>
+  </div>
+</section>

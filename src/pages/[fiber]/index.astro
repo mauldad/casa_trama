@@ -1,0 +1,68 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProductCard from '@/components/ProductCard.astro';
+import FiberEducate from '@/components/FiberEducate.astro';
+import Trail from '@/components/Trail.astro';
+import { getProducts } from '@/lib/commerce';
+import { getFiberStory } from '@/data/fiber-stories';
+import { fiberLabel, isFiberPath } from '@/lib/product-path';
+import { getFiberPath } from '@/lib/product-path';
+
+const { fiber } = Astro.params;
+
+if (!isFiberPath(fiber)) {
+  return Astro.redirect('/404');
+}
+
+const story = getFiberStory(fiber);
+if (!story) {
+  return Astro.redirect('/tienda/');
+}
+
+const all = await getProducts();
+const products = all.filter((product) => getFiberPath(product) === fiber);
+const canonical = new URL(`/${fiber}/`, Astro.site).href;
+const title = `${story.name} · Curatoría Casa Trama`;
+const description = story.lede;
+---
+
+<BaseLayout title={title} description={description} canonical={canonical}>
+  <Trail
+    items={[
+      { label: 'Inicio', href: '/' },
+      { label: 'Tienda', href: '/tienda/' },
+      { label: fiberLabel(fiber) },
+    ]}
+  />
+
+  <header class="page-hero shell fiber-hub-hero">
+    <p class="eyebrow">{story.kicker} / Casa Trama</p>
+    <h1>{story.name}</h1>
+    <div class="page-hero-footer">
+      <p>{story.lede}</p>
+      <span class="page-count">{String(products.length).padStart(2, '0')}</span>
+    </div>
+  </header>
+
+  <div class="shell fiber-hub-educate">
+    <FiberEducate story={story} />
+  </div>
+
+  <section class="shell fiber-hub-products" aria-labelledby="fiber-hub-products-title">
+    <div class="fiber-hub-products-head">
+      <p class="eyebrow">Piezas en {story.name.toLowerCase()}</p>
+      <h2 id="fiber-hub-products-title">Hallazgos curados</h2>
+    </div>
+    {
+      products.length > 0 ? (
+        <div class="product-grid">
+          {products.map((product, index) => (
+            <ProductCard product={product} index={index} priority={index === 0} />
+          ))}
+        </div>
+      ) : (
+        <p class="shop-empty">Pronto publicaremos nuevas piezas en esta fibra.</p>
+      )
+    }
+  </section>
+</BaseLayout>

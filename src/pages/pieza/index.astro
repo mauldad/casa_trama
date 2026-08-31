@@ -3,9 +3,11 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 import { getProducts } from '@/lib/commerce';
 import { formatCLP } from '@/lib/format';
+import { getProductPath } from '@/lib/product-path';
 
 const products = await getProducts({ featured: true });
 const piece = products[0];
+const pieceHref = piece ? getProductPath(piece) : '/tienda/';
 const canonical = new URL('/pieza/', Astro.site).href;
 
 const composition =
@@ -19,7 +21,6 @@ const stages = [
     index: '01',
     place: 'Altiplano',
     moment: 'Origen',
-    icon: 'alpaca' as const,
     title: 'La fibra nace lejos del ruido',
     body: 'Baby alpaca de altura: ligera, cálida, con memoria de viento frío. Aquí empieza la trazabilidad — en el animal, el clima y una cosecha que no se apresura.',
     sense: 'Calidez seca · Vellón fino',
@@ -30,7 +31,6 @@ const stages = [
     index: '02',
     place: 'Taller',
     moment: 'Hilado',
-    icon: 'leaf' as const,
     title: 'La trama toma forma',
     body: 'El hilo se construye con paciencia. Cada pasada define caída, recuperación y el silencio visual de la pieza. No hay atajo: la nobleza se siente en la densidad justa.',
     sense: 'Tensión suave · Hilo continuo',
@@ -41,7 +41,6 @@ const stages = [
     index: '03',
     place: 'Meseta',
     moment: 'Tono',
-    icon: 'touch' as const,
     title: 'El color llega como luz, no como grito',
     body: 'Buscamos un ocre que tome la mañana sin brillar de más. El tono debe dialogar con piedra, madera y piel — nunca competir con ellas.',
     sense: 'Ocre mate · Luz lenta',
@@ -52,7 +51,6 @@ const stages = [
     index: '04',
     place: 'Fibra',
     moment: 'Materia',
-    icon: 'guide' as const,
     title: 'El vellón guarda la memoria del frío',
     body: 'Antes de la curaduría, la materia se reconoce al tacto: finura, recuperación, calidez seca. Solo esa fibra —la que abriga sin imponer— sigue el camino hacia Casa Trama.',
     sense: 'Tacto · Densidad justa',
@@ -63,7 +61,6 @@ const stages = [
     index: '05',
     place: 'Puerto Varas',
     moment: 'Curaduría',
-    icon: 'time' as const,
     title: 'Casa Trama elige o deja pasar',
     body: 'Llega al sur. Tocamos, medimos, vestimos. Si no abriga sin imponer, no entra al catálogo. Solo las piezas que superan ese filtro reciben lote y quedan en espera.',
     sense: 'Criterio · Serie mínima',
@@ -74,7 +71,6 @@ const stages = [
     index: '06',
     place: 'Tus manos',
     moment: 'Permanencia',
-    icon: 'touch' as const,
     title: 'La historia continúa en el cuerpo',
     body: 'Cuando la pieza te encuentra, el seguimiento no termina: empieza el uso. Agua fría, menos lavados, secado paciente. Así la trama permanece — y el relato también.',
     sense: 'Uso cotidiano · Cuidado',
@@ -154,7 +150,7 @@ const stages = [
             <li class:list={['trace-step', i % 2 === 1 && 'trace-step--flip']} data-trace-step>
               <div class="trace-step-rail" aria-hidden="true">
                 <span class="trace-step-node">
-                  <Icon name={stage.icon} size={18} />
+                  <span class="trace-step-mark"></span>
                 </span>
               </div>
               <div class="trace-step-copy">
@@ -201,7 +197,7 @@ const stages = [
                 <p>{piece.shortDescription}</p>
                 <p class="trace-arrive-price">{formatCLP(piece.price)}</p>
                 <div class="action-row">
-                  <a class="button" href={`/producto/${piece.slug}/`}>
+                  <a class="button" href={pieceHref}>
                     Continuar con esta pieza <Icon name="arrow-right" size={14} />
                   </a>
                   <a class="button-secondary" href="/tienda/">

@@ -1,6 +1,6 @@
 ---
 interface Props {
-  name: 'arrow-ne' | 'arrow-right' | 'close' | 'touch' | 'leaf' | 'time' | 'guide' | 'alpaca';
+  name: 'arrow-ne' | 'arrow-right' | 'close' | 'touch' | 'leaf' | 'time' | 'guide' | 'alpaca' | 'chevron' | 'lock' | 'shield' | 'search';
   class?: string;
   size?: number;
 }
@@ -11,6 +11,10 @@ const paths: Record<Props['name'], string[]> = {
   'arrow-ne': ['M4.5 11.5L11.5 4.5M11.5 4.5H6.25M11.5 4.5V9.75'],
   'arrow-right': ['M3 8h10M9.25 4.5 12.75 8 9.25 11.5'],
   close: ['M4 4l8 8M12 4l-8 8'],
+  search: [
+    'M7 2.75a4.25 4.25 0 1 1 0 8.5 4.25 4.25 0 0 1 0-8.5Z',
+    'M10.35 10.35 13.25 13.25',
+  ],
   touch: [
     'M3.25 11.25c2.1-2.85 5.4-2.85 7.5 0',
     'M4.75 8.6c1.4-1.85 3.6-1.85 5 0',
@@ -38,6 +42,16 @@ const paths: Record<Props['name'], string[]> = {
     // cuello largo — señal de alpaca
     'M7.55 7.55c-1.2 2.25-1.85 4.55-1.5 6.7',
     'M9.15 7.4c0 2.2-.3 4.45-.55 6.55',
+  ],
+  chevron: ['M4 6.25 8 10.25 12 6.25'],
+  lock: [
+    'M5.25 7.25V5.6a2.75 2.75 0 0 1 5.5 0v1.65',
+    'M4.25 7.25h7.5v5.5H4.25z',
+    'M8 9.6v1.6',
+  ],
+  shield: [
+    'M8 2.75 12.5 4.5v3.6c0 2.85-1.85 4.7-4.5 5.65C5.35 12.8 3.5 10.95 3.5 8.1V4.5L8 2.75Z',
+    'M6.35 8.15 7.55 9.35 9.85 6.9',
   ],
 };
 ---

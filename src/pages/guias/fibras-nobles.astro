@@ -1,22 +1,33 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Trail from '@/components/Trail.astro';
+import Icon from '@/components/Icon.astro';
+import { getFiberStory } from '@/data/fiber-stories';
+
+const babyAlpaca = getFiberStory('alpaca')!;
 
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': 'Article',
   headline: 'Guía breve para entender las fibras nobles',
   author: { '@type': 'Organization', name: 'Casa Trama' },
-  dateModified: '2026-08-28',
+  dateModified: '2026-08-31',
 };
 ---
 
-<BaseLayout title="Guía de fibras nobles" description="Aprende a comparar baby alpaca, lana y algodón por tacto, calidez, peso y cuidado." schema={articleSchema}>
+<BaseLayout
+  title="Guía de fibras nobles"
+  description="Aprende qué es la baby alpaca, sus beneficios y cómo comparar fibras nobles por tacto, calidez, peso y cuidado."
+  schema={articleSchema}
+>
   <Trail items={[{ label: 'Inicio', href: '/' }, { label: 'Guías' }, { label: 'Fibras nobles' }]} />
   <header class="page-hero shell">
     <p class="eyebrow">Guía de materialidad · Revisión 2026</p>
     <h1>Fibras nobles</h1>
-    <div class="page-hero-footer"><p>Una guía breve para elegir por composición, tacto y uso, no solamente por apariencia.</p><span class="page-count">04'</span></div>
+    <div class="page-hero-footer">
+      <p>Una guía para elegir por composición, tacto y uso — y entender por qué la baby alpaca se siente distinta.</p>
+      <span class="page-count">06'</span>
+    </div>
   </header>
   <div class="guide-layout shell">
     <aside class="guide-aside">
@@ -25,26 +36,99 @@ const articleSchema = {
         <a href="#que-mirar">Qué mirar primero</a>
         <a href="#comparacion">Comparación</a>
         <a href="#baby-alpaca">Baby alpaca</a>
+        <a href="#beneficios">Beneficios</a>
         <a href="#cuidado">Cuidado</a>
       </nav>
     </aside>
     <article class="prose">
-      <p>Una buena fibra no necesita sentirse rígida, excesivamente brillante ni artificialmente perfecta. Su valor aparece en el contacto, la temperatura, la caída y la forma en que responde al uso.</p>
+      <p>
+        Una buena fibra no necesita sentirse rígida, excesivamente brillante ni artificialmente perfecta.
+        Su valor aparece en el contacto, la temperatura, la caída y la forma en que responde al uso.
+      </p>
+
       <h2 id="que-mirar">Qué mirar primero</h2>
-      <p>Comienza por la etiqueta de composición. Los nombres comerciales pueden sugerir una sensación, pero los porcentajes permiten comprender qué material estás comprando. Después observa el brillo: las fibras naturales suelen mostrar variaciones sutiles, no un reflejo plástico uniforme.</p>
+      <p>
+        Comienza por la etiqueta de composición. Los nombres comerciales pueden sugerir una sensación, pero
+        los porcentajes permiten comprender qué material estás comprando. Después observa el brillo: las fibras
+        naturales suelen mostrar variaciones sutiles, no un reflejo plástico uniforme.
+      </p>
+
       <h2 id="comparacion">Comparación rápida</h2>
       <table class="comparison">
-        <thead><tr><th>Fibra</th><th>Sensación</th><th>Calidez</th><th>Uso frecuente</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Fibra</th>
+            <th>Sensación</th>
+            <th>Calidez</th>
+            <th>Uso frecuente</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td>Baby alpaca</td><td>Suave, fina y liviana</td><td>Alta con poco peso</td><td>Bufandas, estolas y capas</td></tr>
-          <tr><td>Lana</td><td>Variable, con más cuerpo</td><td>Alta</td><td>Invierno y prendas estructuradas</td></tr>
-          <tr><td>Algodón</td><td>Fresco y respirable</td><td>Baja a media</td><td>Media estación y mezclas</td></tr>
+          <tr>
+            <td>Baby alpaca</td>
+            <td>Suave, fina y liviana</td>
+            <td>Alta con poco peso</td>
+            <td>Bufandas, estolas y capas</td>
+          </tr>
+          <tr>
+            <td>Lana</td>
+            <td>Variable, con más cuerpo</td>
+            <td>Alta</td>
+            <td>Invierno y prendas estructuradas</td>
+          </tr>
+          <tr>
+            <td>Algodón</td>
+            <td>Fresco y respirable</td>
+            <td>Baja a media</td>
+            <td>Media estación y mezclas</td>
+          </tr>
         </tbody>
       </table>
-      <h2 id="baby-alpaca">Por qué elegir baby alpaca</h2>
-      <p>La baby alpaca se selecciona por la finura de la fibra, no por la edad del animal. Su combinación de suavidad, aislamiento y bajo peso la vuelve adecuada para piezas que necesitan abrigar sin sentirse pesadas.</p>
+
+      <h2 id="baby-alpaca">Qué es la baby alpaca</h2>
+      <p>{babyAlpaca.whatItIs}</p>
+
+      <h3>Una precisión que conviene saber</h3>
+      <p>
+        <strong>{babyAlpaca.myth.claim}</strong>
+        {' '}
+        {babyAlpaca.myth.truth}
+      </p>
+
+      <h3>Características que importan al cuerpo</h3>
+      <ul>
+        {
+          babyAlpaca.traits.map((trait) => (
+            <li>
+              <strong>{trait.label}.</strong> {trait.value}
+            </li>
+          ))
+        }
+      </ul>
+
+      <h2 id="beneficios">Beneficios reales (no marketing vacío)</h2>
+      <p>{babyAlpaca.lede}</p>
+      <ul>
+        {
+          babyAlpaca.benefits.map((benefit) => (
+            <li>
+              <strong>{benefit.title}.</strong> {benefit.body}
+            </li>
+          ))
+        }
+      </ul>
+      <p>{babyAlpaca.closing}</p>
+      <p>
+        <a class="text-link" href="/alpaca/">
+          Ver piezas en baby alpaca <Icon name="arrow-ne" size={11} />
+        </a>
+      </p>
+
       <h2 id="cuidado">El cuidado es parte del producto</h2>
-      <p>Revisa siempre la indicación específica de la pieza. Como regla prudente para fibras delicadas: agua fría, poca fricción, jabón neutro, nada de torsión y secado horizontal a la sombra.</p>
+      <p>
+        Revisa siempre la indicación específica de la pieza. Como regla prudente para fibras delicadas: agua
+        fría, poca fricción, jabón neutro, nada de torsión y secado horizontal a la sombra.
+      </p>
       <h3>Antes de guardar</h3>
       <ul>
         <li>Asegúrate de que la pieza esté completamente seca.</li>

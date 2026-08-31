@@ -3,7 +3,6 @@ import Announcement from '@/components/Announcement.astro';
 import CartDrawer from '@/components/CartDrawer.astro';
 import Footer from '@/components/Footer.astro';
 import Header from '@/components/Header.astro';
-import StoreDock from '@/components/StoreDock.astro';
 import { organizationSchema } from '@/lib/seo';
 import '@/styles/fonts.css';
 import '@/styles/global.css';
@@ -24,7 +23,7 @@ const {
   schema,
 } = Astro.props;
 
-const pageTitle = title === 'Casa Trama' ? title : `${title} — Casa Trama`;
+const pageTitle = /casa\s*trama/i.test(title) ? title : `${title} — Casa Trama`;
 const schemas = schema ? [organizationSchema].concat(schema as never) : [organizationSchema];
 const gtmId = import.meta.env.PUBLIC_GTM_ID;
 ---
@@ -34,13 +33,76 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {
+      gtmId && (
+        <script is:inline set:html={`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${gtmId}');`} />
+      )
+    }
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#eee8dc" />
     {noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <slot name="head" />
     <title>{pageTitle}</title>
+    <style is:inline>
+      html.js body { background: #f4f0e7; }
+      html.js .site-chrome,
+      html.js main,
+      html.js .site-footer {
+        opacity: 0;
+        transform: translate3d(0, 10px, 0);
+      }
+      html.js.is-ready .site-chrome,
+      html.js.is-ready main,
+      html.js.is-ready .site-footer {
+        opacity: 1;
+        transform: none;
+        transition:
+          opacity .72s cubic-bezier(.22, 1, .36, 1),
+          transform .88s cubic-bezier(.22, 1, .36, 1);
+      }
+      html.js.is-ready main { transition-delay: .05s; }
+      html.js.is-ready .site-footer { transition-delay: .12s; }
+      html.js main img:not([data-no-soft]) {
+        opacity: 0;
+        filter: saturate(.92);
+        transition:
+          opacity .78s cubic-bezier(.22, 1, .36, 1),
+          filter .9s ease;
+      }
+      html.js main img:not([data-no-soft]).is-shown {
+        opacity: 1;
+        filter: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html.js .site-chrome,
+        html.js main,
+        html.js .site-footer,
+        html.js main img:not([data-no-soft]) {
+          opacity: 1 !important;
+          transform: none !important;
+          filter: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      window.setTimeout(function () {
+        document.documentElement.classList.add('is-ready');
+        var hero = document.querySelector('[data-hero-fade]');
+        if (hero) hero.classList.add('is-entered');
+        document.querySelectorAll('main img').forEach(function (img) {
+          img.classList.add('is-shown');
+        });
+      }, 1600);
+    </script>
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_CL" />
     <meta property="og:title" content={pageTitle} />
@@ -48,16 +110,21 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary_large_image" />
     {schemas.map((item) => <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />)}
-    {gtmId && <script is:inline define:vars={{ gtmId }}>
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-      const script = document.createElement('script');
-      script.async = true;
-      script.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`;
-      document.head.appendChild(script);
-    </script>}
   </head>
   <body>
+    {
+      gtmId && (
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+            height="0"
+            width="0"
+            style="display:none;visibility:hidden"
+            title="Google Tag Manager"
+          ></iframe>
+        </noscript>
+      )
+    }
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <div class="site-chrome">
       <Announcement />
@@ -67,13 +134,13 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
       <slot />
     </main>
     <Footer />
-    <StoreDock />
     <CartDrawer />
     <script>
       interface StoredCartLine {
         productId: number;
         sku?: string;
         slug?: string;
+        path?: string;
         name?: string;
         price: number;
         image?: string;
@@ -125,11 +192,11 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
           const article = document.createElement('article');
           article.className = 'cart-drawer-line';
           article.innerHTML = `
-            <a class="cart-drawer-thumb" href="/producto/${line.slug ?? ''}/">
+            <a class="cart-drawer-thumb" href="${line.path || (line.slug ? `/producto/${line.slug}/` : '/tienda/')}">
               ${line.image ? `<img src="${line.image}" alt="" width="96" height="120" />` : '<span class="material-placeholder tone-natural"></span>'}
             </a>
             <div class="cart-drawer-line-copy">
-              <h3><a href="/producto/${line.slug ?? ''}/">${line.name ?? 'Pieza'}</a></h3>
+              <h3><a href="${line.path || (line.slug ? `/producto/${line.slug}/` : '/tienda/')}">${line.name ?? 'Pieza'}</a></h3>
               <p>${formatCLP(line.price)} · ${line.quantity} u.</p>
               <button type="button" data-remove-cart="${line.productId}">Quitar</button>
             </div>
@@ -207,6 +274,7 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
           productId: Number(button.dataset.productId),
           sku: button.dataset.sku,
           slug: button.dataset.slug,
+          path: button.dataset.path,
           name: button.dataset.name,
           price: Number(button.dataset.price),
           image: button.dataset.image,
@@ -235,6 +303,58 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
 
       document.addEventListener('astro:page-load', updateCount);
       updateCount();
+    </script>
+    <script>
+      const root = document.documentElement;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const markReady = () => {
+        root.classList.add('is-ready');
+      };
+
+      if (reduce) {
+        markReady();
+        document.querySelectorAll('main img').forEach((img) => img.classList.add('is-shown'));
+      } else {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(markReady);
+        });
+
+        const revealImage = (img: HTMLImageElement) => {
+          if (img.hasAttribute('data-no-soft')) return;
+          const show = () => {
+            img.classList.add('is-shown');
+          };
+          if (img.complete && img.naturalWidth > 0) {
+            // Micro-delay so cached images still feel soft, not abrupt.
+            window.setTimeout(show, 40);
+            return;
+          }
+          img.addEventListener('load', show, { once: true });
+          img.addEventListener('error', show, { once: true });
+        };
+
+        document.querySelectorAll<HTMLImageElement>('main img').forEach(revealImage);
+
+        const hero = document.querySelector<HTMLElement>('[data-hero-fade]');
+        if (hero) {
+          const panels = Array.from(hero.querySelectorAll<HTMLImageElement>('.hero-panel img'));
+          Promise.all(
+            panels.map((img) => {
+              if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+              return img.decode?.().catch(() => undefined) ??
+                new Promise<void>((resolve) => {
+                  img.addEventListener('load', () => resolve(), { once: true });
+                  img.addEventListener('error', () => resolve(), { once: true });
+                });
+            }),
+          ).then(() => {
+            hero.classList.add('is-entered');
+          });
+          // Fallback if decode stalls
+          window.setTimeout(() => hero.classList.add('is-entered'), 900);
+        }
+      }
     </script>
   </body>
 </html>

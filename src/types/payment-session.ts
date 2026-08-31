@@ -1,5 +1,27 @@
 import type { NormalizedPaymentStatus } from '@/types/payment';
 
+export interface PaymentLineItem {
+  productId: number;
+  sku?: string;
+  slug?: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+}
+
+export interface PaymentCustomer {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  address?: string;
+  apartment?: string;
+  commune?: string;
+  region?: string;
+  shippingMethod?: string;
+}
+
 export interface PaymentSessionRecord {
   orderId: number;
   orderToken: string;
@@ -7,7 +29,10 @@ export interface PaymentSessionRecord {
   buyOrder: string;
   idempotencyKey: string;
   customerEmail: string;
+  customer: PaymentCustomer;
+  items: PaymentLineItem[];
   status: NormalizedPaymentStatus;
   authorizationCode?: string;
   createdAt: string;
+  emailsSentAt?: string;
 }

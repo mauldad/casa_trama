@@ -7,7 +7,7 @@ const status = Astro.url.searchParams.get('status') || 'unknown';
 const copy: Record<string, { title: string; message: string }> = {
   approved: {
     title: 'Pago confirmado',
-    message: 'Recibimos tu pago. Te enviaremos la confirmación por correo cuando el pedido quede registrado.',
+    message: 'Recibimos tu pago. Te enviamos la confirmación por correo con el detalle del pedido.',
   },
   rejected: {
     title: 'Pago no completado',

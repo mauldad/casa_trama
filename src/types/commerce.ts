@@ -12,6 +12,15 @@ export interface ProductAttribute {
   value: string;
 }
 
+export interface ProductSense {
+  key: string;
+  label: string;
+  value: string;
+  /** Nivel visual 1–5 cuando el texto de Woo lo permite */
+  level?: number;
+  icon: 'touch' | 'leaf' | 'time' | 'guide' | 'alpaca' | 'shield';
+}
+
 export interface Product {
   id: number;
   sku: string;
@@ -32,6 +41,11 @@ export interface Product {
   images: ProductImage[];
   attributes: ProductAttribute[];
   care: string[];
+  /** Perfil sensorial (desde atributos Woo o mock) */
+  senses?: ProductSense[];
+  promise?: string;
+  idealFor?: string;
+  finish?: string;
 }
 
 export interface CartLine {

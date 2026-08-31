@@ -10,7 +10,7 @@ import Icon from '@/components/Icon.astro';
     </section>
     <section>
       <h3>Casa Trama</h3>
-      <a href="/casa-trama/">Nuestra historia</a>
+      <a href="/nosotras/">Nosotras</a>
       <a href="/historias/">Historias</a>
       <a href="/contacto/">Contacto</a>
     </section>
@@ -23,11 +23,23 @@ import Icon from '@/components/Icon.astro';
     <section class="newsletter">
       <h3>Cartas de Casa Trama</h3>
       <p>Nuevas piezas, historias de materialidad y formas de cuidarlas.</p>
-      <form action="#" method="post">
+      <form id="newsletter-form" class="newsletter-form" novalidate>
         <label class="sr-only" for="newsletter-email">Tu correo</label>
-        <input id="newsletter-email" type="email" name="email" placeholder="tu@correo.cl" required />
-        <button type="submit" aria-label="Suscribirme"><Icon name="arrow-right" size={14} /></button>
+        <input
+          id="newsletter-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          placeholder="tu@correo.cl"
+          required
+          maxlength="160"
+        />
+        <input class="sr-only" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <button type="submit" aria-label="Suscribirme">
+          <Icon name="arrow-right" size={14} />
+        </button>
       </form>
+      <p class="newsletter-status" id="newsletter-status" hidden aria-live="polite"></p>
     </section>
   </div>
   <div class="shell footer-bottom">
@@ -36,3 +48,54 @@ import Icon from '@/components/Icon.astro';
     <p>Puerto Varas · Chile</p>
   </div>
 </footer>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#newsletter-form');
+  const status = document.querySelector<HTMLElement>('#newsletter-status');
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!(form instanceof HTMLFormElement) || !(status instanceof HTMLElement)) return;
+
+    const data = new FormData(form);
+    const email = String(data.get('email') || '').trim();
+    const company = String(data.get('company') || '').trim();
+    const button = form.querySelector('button');
+
+    if (!email) {
+      status.hidden = false;
+      status.textContent = 'Escribe tu correo.';
+      status.dataset.state = 'error';
+      return;
+    }
+
+    if (button instanceof HTMLButtonElement) button.disabled = true;
+    status.hidden = false;
+    status.textContent = 'Suscribiendo…';
+    status.dataset.state = 'pending';
+
+    try {
+      const response = await fetch('/api/newsletter/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, company, source: 'Cartas Casa Trama · Footer' }),
+      });
+      const payload = (await response.json()) as { ok?: boolean; error?: string };
+
+      if (!response.ok || !payload.ok) {
+        status.textContent = payload.error || 'No pudimos suscribirte ahora.';
+        status.dataset.state = 'error';
+        return;
+      }
+
+      status.textContent = 'Listo. Te escribiremos con calma.';
+      status.dataset.state = 'ok';
+      form.reset();
+    } catch {
+      status.textContent = 'No pudimos suscribirte ahora.';
+      status.dataset.state = 'error';
+    } finally {
+      if (button instanceof HTMLButtonElement) button.disabled = false;
+    }
+  });
+</script>

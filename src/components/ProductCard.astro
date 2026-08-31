@@ -1,5 +1,6 @@
 ---
 import { formatCLP } from '@/lib/format';
+import { getProductPath } from '@/lib/product-path';
 import type { Product } from '@/types/commerce';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 
 const { product, priority = false, index = 0 } = Astro.props;
 const image = product.images[0];
+const href = getProductPath(product);
 ---
 
 <article
@@ -20,7 +22,7 @@ const image = product.images[0];
   data-price={product.price}
   data-featured={product.featured ? 'true' : 'false'}
 >
-  <a class="product-media" href={`/producto/${product.slug}/`} aria-label={`Ver ${product.name}`}>
+  <a class="product-media" href={href} aria-label={`Ver ${product.name}`}>
     {image ? (
       <img src={image.src} alt={image.alt} width="880" height="1100" loading={priority ? 'eager' : 'lazy'} fetchpriority={priority ? 'high' : 'auto'} />
     ) : (
@@ -32,7 +34,7 @@ const image = product.images[0];
   <div class="product-card-body">
     <div>
       <p class="product-eyebrow">{product.eyebrow}</p>
-      <h3><a href={`/producto/${product.slug}/`}>{product.name}</a></h3>
+      <h3><a href={href}>{product.name}</a></h3>
       <p>{formatCLP(product.price)}</p>
     </div>
     <button
@@ -43,6 +45,7 @@ const image = product.images[0];
       data-product-id={product.id}
       data-sku={product.sku}
       data-slug={product.slug}
+      data-path={href}
       data-name={product.name}
       data-price={product.price}
       data-image={image?.src}

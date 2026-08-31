@@ -30,13 +30,6 @@ const regions = [
     <div class="xo-main" id="checkout-main">
       <header class="xo-brand">
         <a class="xo-logo" href="/">CASA TRAMA</a>
-        <nav class="xo-steps" aria-label="Progreso del checkout">
-          <a href="/carro/">Carro</a>
-          <span aria-hidden="true">/</span>
-          <span aria-current="step">Información</span>
-          <span aria-hidden="true">/</span>
-          <span>Pago</span>
-        </nav>
       </header>
 
       <form class="xo-form" id="checkout-form" novalidate>
@@ -100,20 +93,12 @@ const regions = [
           </div>
           <div class="xo-choice-list" role="radiogroup" aria-label="Método de envío">
             <label class="xo-choice is-selected">
-              <input type="radio" name="shippingMethod" value="standard" checked />
+              <input type="radio" name="shippingMethod" value="agreed" checked />
               <span class="xo-choice-copy">
-                <strong>Envío estándar Chile</strong>
-                <small>Se confirmará plazo al activar despacho</small>
+                <strong>Envío a convenir con el cliente</strong>
+                <small>Coordinamos plazo y costo después de la compra</small>
               </span>
-              <span class="xo-choice-price">Por calcular</span>
-            </label>
-            <label class="xo-choice">
-              <input type="radio" name="shippingMethod" value="pickup" disabled />
-              <span class="xo-choice-copy">
-                <strong>Retiro en punto</strong>
-                <small>Próximamente</small>
-              </span>
-              <span class="xo-choice-price">—</span>
+              <span class="xo-choice-price">A convenir</span>
             </label>
           </div>
         </section>
@@ -123,17 +108,34 @@ const regions = [
             <h2>Pago</h2>
           </div>
           <div class="xo-payment-card" aria-live="polite">
-            <div class="xo-payment-brand">
-              <strong>{payment.label}</strong>
-              <span>Pago seguro con Transbank</span>
+            <div class="xo-payment-top">
+              <span class="xo-payment-secure">
+                <Icon name="lock" size={13} />
+                Transbank
+              </span>
             </div>
-            <p>
-              Al continuar serás redirigida a Webpay para autorizar el cobro. Casa Trama no almacena datos de tarjeta.
-            </p>
+
+            <div class="xo-payment-method is-active">
+              <span class="xo-payment-radio" aria-hidden="true"></span>
+              <div class="xo-payment-method-copy">
+                <strong>{payment.label}</strong>
+                <p>Tarjetas de crédito y débito. Te redirigimos a Webpay; Casa Trama no ve ni guarda tu tarjeta.</p>
+                <figure class="xo-payment-marks">
+                  <img
+                    src="/images/webpay-plus-marks.webp"
+                    alt="Webpay Plus · Transbank · Visa · Mastercard · Magna · American Express · Diners Club"
+                    width="500"
+                    height="290"
+                    loading="lazy"
+                  />
+                </figure>
+              </div>
+            </div>
+
             <ul class="xo-trust">
-              <li>Conexión cifrada</li>
-              <li>Confirmación por correo</li>
-              <li>Compra protegida</li>
+              <li><Icon name="lock" size={12} /> Conexión cifrada</li>
+              <li><Icon name="shield" size={12} /> Compra protegida</li>
+              <li><Icon name="time" size={12} /> Confirmación al instante</li>
             </ul>
           </div>
         </section>
@@ -147,19 +149,30 @@ const regions = [
         <p class="xo-error" id="checkout-error" hidden role="alert"></p>
         <p class="xo-fineprint">
           Al continuar aceptas los <a href="/terminos/">términos</a> y la <a href="/privacidad/">privacidad</a> de Casa Trama.
-          Por ahora solo se cobra el total de productos; el despacho se confirma antes del go-live comercial.
+          Por ahora solo se cobra el total de productos; el envío se conviene contigo después de la compra.
         </p>
       </form>
     </div>
 
     <aside class="xo-summary" aria-label="Resumen del pedido">
       <div class="xo-summary-inner">
-        <button class="xo-summary-toggle" type="button" id="summary-toggle" aria-expanded="false">
-          <span>Mostrar resumen del pedido</span>
-          <strong id="checkout-total-mobile">$0</strong>
+        <button
+          class="xo-summary-toggle"
+          type="button"
+          id="summary-toggle"
+          aria-expanded="true"
+          aria-controls="summary-panel"
+        >
+          <span class="xo-summary-toggle-copy">
+            <span class="xo-summary-toggle-label">Ocultar resumen del pedido</span>
+            <strong id="checkout-total-mobile">$0</strong>
+          </span>
+          <span class="xo-summary-toggle-chip" aria-hidden="true">
+            <Icon name="chevron" size={14} />
+          </span>
         </button>
 
-        <div class="xo-summary-panel" id="summary-panel">
+        <div class="xo-summary-panel is-open" id="summary-panel">
           <div class="xo-lines" id="checkout-lines"></div>
 
           <div class="xo-discount">
@@ -170,7 +183,7 @@ const regions = [
 
           <div class="xo-totals">
             <div class="xo-total-row"><span>Subtotal</span><span id="checkout-subtotal">$0</span></div>
-            <div class="xo-total-row"><span>Envío</span><span>Por calcular</span></div>
+            <div class="xo-total-row"><span>Envío</span><span>A convenir</span></div>
             <div class="xo-total-row xo-total-final"><span>Total</span><strong id="checkout-total">$0</strong></div>
             <p class="xo-currency">CLP · IVA incluido según corresponde</p>
           </div>
@@ -197,7 +210,9 @@ const regions = [
       row.className = 'xo-line';
       row.innerHTML = `
         <div class="xo-thumb">
-          ${line.image ? `<img src="${line.image}" alt="" width="64" height="80" />` : ''}
+          <span class="xo-thumb-frame">
+            ${line.image ? `<img src="${line.image}" alt="" width="64" height="80" />` : ''}
+          </span>
           <em>${line.quantity}</em>
         </div>
         <div class="xo-line-copy">
@@ -216,10 +231,11 @@ const regions = [
 
     summaryToggle?.addEventListener('click', () => {
       const open = summaryToggle.getAttribute('aria-expanded') === 'true';
-      summaryToggle.setAttribute('aria-expanded', String(!open));
-      summaryPanel?.classList.toggle('is-open', !open);
-      const label = summaryToggle.querySelector('span');
-      if (label) label.textContent = open ? 'Mostrar resumen del pedido' : 'Ocultar resumen del pedido';
+      const next = !open;
+      summaryToggle.setAttribute('aria-expanded', String(next));
+      summaryPanel?.classList.toggle('is-open', next);
+      const label = summaryToggle.querySelector('.xo-summary-toggle-label');
+      if (label) label.textContent = next ? 'Ocultar resumen del pedido' : 'Mostrar resumen del pedido';
     });
 
     document.querySelectorAll('.xo-choice-list input[type="radio"]').forEach((input) => {
@@ -280,6 +296,21 @@ const regions = [
             firstName: formData.get('firstName'),
             lastName: formData.get('lastName'),
             phone: formData.get('phone'),
+            address: formData.get('address'),
+            apartment: formData.get('apartment'),
+            commune: formData.get('commune'),
+            region: formData.get('region'),
+            shippingMethod: formData.get('shippingMethod') || 'agreed',
+            newsletter: formData.get('newsletter') === '1',
+            items: cart.map((line) => ({
+              productId: line.productId,
+              sku: line.sku,
+              slug: line.slug,
+              name: line.name,
+              price: line.price,
+              quantity: line.quantity,
+              image: line.image,
+            })),
           }),
         });
 

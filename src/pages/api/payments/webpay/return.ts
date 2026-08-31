@@ -6,6 +6,7 @@ import {
   updatePaymentSessionStatus,
 } from '@/lib/payment/session-store';
 import { getSiteUrl } from '@/lib/payment/transbank';
+import { sendPaymentFailedEmail, sendPurchaseEmails } from '@/lib/email/orders';
 
 function redirectToOrder(orderToken: string, status: string) {
   const siteUrl = getSiteUrl();
@@ -39,8 +40,16 @@ async function handleReturn({ request, url }: Parameters<APIRoute>[0]) {
   const { tokenWs, tbkToken } = await readToken(request, url);
 
   if (tbkToken && !tokenWs) {
-    const session = getPaymentSession(tbkToken) || getPaymentSessionByOrderToken(orderToken);
-    if (session) updatePaymentSessionStatus(tbkToken, 'cancelled');
+    const session =
+      (await getPaymentSession(tbkToken)) || (await getPaymentSessionByOrderToken(orderToken));
+    if (session) {
+      await updatePaymentSessionStatus(tbkToken || tokenWs, 'cancelled');
+      try {
+        await sendPaymentFailedEmail(session, 'cancelled');
+      } catch (error) {
+        console.error('[payments/webpay/return] cancel email', error);
+      }
+    }
     return redirectToOrder(orderToken, 'cancelled');
   }
 
@@ -48,22 +57,45 @@ async function handleReturn({ request, url }: Parameters<APIRoute>[0]) {
     return redirectToOrder(orderToken, 'unknown');
   }
 
-  const session = getPaymentSession(tokenWs) || getPaymentSessionByOrderToken(orderToken);
-  if (!session) {
-    return redirectToOrder(orderToken, 'unknown');
-  }
+  const session =
+    (await getPaymentSession(tokenWs)) || (await getPaymentSessionByOrderToken(orderToken));
 
   try {
     const provider = getPaymentProvider();
+    const orderId = session?.orderId || Number(url.searchParams.get('oid')) || Date.now();
     const result = await provider.verifyWebhook(
       request.headers,
-      JSON.stringify({ token: tokenWs, orderId: session.orderId }),
+      JSON.stringify({ token: tokenWs, orderId }),
     );
+
+    if (session && result.status === 'approved') {
+      try {
+        await sendPurchaseEmails(
+          { ...session, status: 'approved' },
+          { authorizationCode: result.authorizationCode, paymentToken: tokenWs },
+        );
+      } catch (error) {
+        console.error('[payments/webpay/return] purchase emails', error);
+      }
+    } else if (session && result.status === 'rejected') {
+      try {
+        await sendPaymentFailedEmail(session, 'rejected');
+      } catch (error) {
+        console.error('[payments/webpay/return] rejected email', error);
+      }
+    }
 
     return redirectToOrder(orderToken, result.status);
   } catch (error) {
     console.error('[payments/webpay/return]', error);
-    updatePaymentSessionStatus(tokenWs, 'rejected');
+    await updatePaymentSessionStatus(tokenWs, 'rejected');
+    if (session) {
+      try {
+        await sendPaymentFailedEmail(session, 'rejected');
+      } catch (mailError) {
+        console.error('[payments/webpay/return] rejected email', mailError);
+      }
+    }
     return redirectToOrder(orderToken, 'rejected');
   }
 }
