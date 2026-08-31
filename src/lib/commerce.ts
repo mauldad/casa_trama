@@ -1,4 +1,5 @@
 import { products as mockProducts } from '@/data/products';
+import { getProductVideo } from '@/data/product-videos';
 import { stripHtml, toProductDescriptionHtml } from '@/lib/format';
 import { getPublicProductSlug, resolveLookupSlugs } from '@/lib/product-path';
 import { buildProductSenses, getAttrValue } from '@/lib/product-profile';
@@ -76,6 +77,7 @@ export const normalizeStoreProduct = (item: StoreApiProduct): Product => {
     categories: item.categories.map((category) => category.name),
     categorySlugs: item.categories.map((category) => category.slug),
     images: item.images.map((image) => ({ src: image.src, alt: image.alt || item.name })),
+    video: getProductVideo(item.slug),
     attributes,
     care: careFromProduct(item),
     senses,

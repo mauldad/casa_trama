@@ -41,6 +41,12 @@ export interface Product {
   categories: string[];
   categorySlugs?: string[];
   images: ProductImage[];
+  /** Video de ficha (autoplay silencioso en galería). */
+  video?: {
+    src: string;
+    poster?: string;
+    label?: string;
+  };
   attributes: ProductAttribute[];
   care: string[];
   /** Perfil sensorial (desde atributos Woo o mock) */

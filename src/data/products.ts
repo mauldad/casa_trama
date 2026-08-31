@@ -1,10 +1,12 @@
 import type { Product } from '@/types/commerce';
+import { getProductVideo } from '@/data/product-videos';
 import { toProductDescriptionHtml } from '@/lib/format';
 import { buildProductSenses } from '@/lib/product-profile';
 
 const withSenses = (product: Product): Product => ({
   ...product,
   descriptionHtml: product.descriptionHtml || toProductDescriptionHtml(product.description),
+  video: product.video || getProductVideo(product.slug),
   senses: buildProductSenses(product.attributes),
 });
 

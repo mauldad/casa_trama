@@ -49,15 +49,33 @@ const fiberStory = getFiberStory(fiber);
 
   <article class="product-detail shell">
     <section class="product-gallery" aria-label={`Galería de ${product.name}`}>
+      {product.video && (
+        <figure class:list={['is-video', { 'is-hero': product.images.length > 0 }]}>
+          <video
+            src={product.video.src}
+            poster={product.video.poster}
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            aria-label={product.video.label || `Video de ${product.name}`}
+          />
+        </figure>
+      )}
       {product.images.map((item, index) => (
-        <figure class:list={{ 'is-hero': index === 0 && product.images.length > 1 }}>
+        <figure
+          class:list={{
+            'is-hero': !product.video && index === 0 && product.images.length > 1,
+          }}
+        >
           <img
             src={item.src}
             alt={item.alt}
             width="1120"
             height="1400"
-            loading={index === 0 ? 'eager' : 'lazy'}
-            fetchpriority={index === 0 ? 'high' : 'auto'}
+            loading={index === 0 && !product.video ? 'eager' : 'lazy'}
+            fetchpriority={index === 0 && !product.video ? 'high' : 'auto'}
             decoding="async"
           />
         </figure>
