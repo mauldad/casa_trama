@@ -7,7 +7,7 @@ import Trail from '@/components/Trail.astro';
 import Icon from '@/components/Icon.astro';
 import { getFiberStory } from '@/data/fiber-stories';
 import { getProduct, getRelatedProducts } from '@/lib/commerce';
-import { formatCLP } from '@/lib/format';
+import { escapeHtml, formatCLP } from '@/lib/format';
 import { getFiberPath, getProductPath, fiberLabel, isFiberPath } from '@/lib/product-path';
 import { enrichProductProfile } from '@/lib/product-profile';
 import { productSchema } from '@/lib/seo';
@@ -69,7 +69,12 @@ const fiberStory = getFiberStory(fiber);
       <h1>{product.name}</h1>
       <p class="product-price">{formatCLP(product.price)}</p>
       {product.shortDescription && <p class="product-lede">{product.shortDescription}</p>}
-      <p class="product-description">{product.description}</p>
+      {(product.descriptionHtml || product.description) && (
+        <div
+          class="product-description"
+          set:html={product.descriptionHtml || `<p>${escapeHtml(product.description)}</p>`}
+        />
+      )}
 
       {product.senses.length > 0 && (
         <section class="product-senses" aria-label="Indicadores sensoriales">

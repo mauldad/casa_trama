@@ -1,5 +1,5 @@
 import { products as mockProducts } from '@/data/products';
-import { stripHtml } from '@/lib/format';
+import { stripHtml, toProductDescriptionHtml } from '@/lib/format';
 import { getPublicProductSlug, resolveLookupSlugs } from '@/lib/product-path';
 import { buildProductSenses, getAttrValue } from '@/lib/product-profile';
 import type { Product, ProductTone, StoreApiCategory, StoreApiProduct } from '@/types/commerce';
@@ -64,6 +64,7 @@ export const normalizeStoreProduct = (item: StoreApiProduct): Product => {
     name: item.name,
     eyebrow,
     description: stripHtml(item.description),
+    descriptionHtml: toProductDescriptionHtml(item.description),
     shortDescription: stripHtml(item.short_description),
     price: normalizePrice(item.prices.price, item.prices.currency_minor_unit),
     regularPrice: normalizePrice(item.prices.regular_price, item.prices.currency_minor_unit),

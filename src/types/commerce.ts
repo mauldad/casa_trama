@@ -28,6 +28,8 @@ export interface Product {
   name: string;
   eyebrow: string;
   description: string;
+  /** HTML seguro para la ficha (párrafos, títulos, listas). */
+  descriptionHtml?: string;
   shortDescription: string;
   price: number;
   regularPrice?: number;
