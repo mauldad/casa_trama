@@ -127,6 +127,19 @@ La página de retorno del proveedor no es evidencia suficiente de pago.
 
 Hoy el drawer de bolsa usa `localStorage` como puente temporal hasta conectar Cart-Token.
 
+## Rank Math (SEO headless)
+
+Rank Math ya está instalado en `blog.casatrama.cl`. El storefront (`casatrama.cl`) lee títulos, descripciones, Open Graph e imágenes desde Rank Math.
+
+1. En WP: **Rank Math SEO → General Settings → Others** (modo Advanced).
+2. Activar **Headless CMS Support** y guardar.
+3. Verifica:  
+   `https://blog.casatrama.cl/wp-json/rankmath/v1/getHead?url=https://blog.casatrama.cl/producto/SLUG/`
+4. Edita SEO de cada producto/entrada en el metabox de Rank Math; el storefront lo refleja en fichas e historias.
+5. Hasta activar Headless, Astro usa un fallback leyendo el `<head>` HTML de WordPress.
+
+Los canonicals y URLs de schema se reescriben a `casatrama.cl` (no al blog).
+
 ## SEO/GEO/AEO
 
 - Mantener producto, oferta y stock coherentes entre interfaz y JSON-LD.

@@ -57,6 +57,7 @@ export const normalizeWpPost = (post: WpPost, index = 0, image?: Story['image'])
   content: post.content.rendered,
   date: post.date,
   index: padIndex(index),
+  link: post.link,
   image,
 });
 

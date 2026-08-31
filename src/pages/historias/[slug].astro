@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Trail from '@/components/Trail.astro';
+import { getRankMathSeo, wpPostPermalink } from '@/lib/rankmath';
 import { getPost, getPosts } from '@/lib/wordpress';
 
 const { slug } = Astro.params;
@@ -14,9 +15,48 @@ const published = new Date(story.date).toLocaleDateString('es-CL', {
   month: 'long',
   day: 'numeric',
 });
+
+const wpUrl = story.link || wpPostPermalink(story.slug);
+const wpPath = new URL(wpUrl).pathname;
+const rankMath = await getRankMathSeo({
+  wpUrl,
+  storefrontCanonical: canonical,
+  wpPath,
+});
+
+const pageTitle = rankMath.title || story.title;
+const pageDescription = rankMath.description || story.excerpt;
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: pageTitle,
+  description: pageDescription,
+  datePublished: story.date,
+  mainEntityOfPage: canonical,
+  image: story.image?.src ? [story.image.src] : undefined,
+  author: { '@type': 'Organization', name: 'Casa Trama' },
+  publisher: { '@type': 'Organization', name: 'Casa Trama', url: 'https://casatrama.cl' },
+};
 ---
 
-<BaseLayout title={story.title} description={story.excerpt} canonical={canonical}>
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonical}
+  ogTitle={rankMath.ogTitle || pageTitle}
+  ogDescription={rankMath.ogDescription || pageDescription}
+  ogImage={rankMath.ogImage || story.image?.src}
+  ogType={rankMath.ogType || 'article'}
+  robots={rankMath.robots}
+  schema={[
+    articleSchema,
+    ...rankMath.schemas.filter((node) => {
+      const type = node['@type'];
+      const types = Array.isArray(type) ? type.map(String) : [String(type)];
+      return !types.includes('Article') && !types.includes('BlogPosting');
+    }),
+  ]}
+>
   <Trail
     items={[
       { label: 'Inicio', href: '/' },

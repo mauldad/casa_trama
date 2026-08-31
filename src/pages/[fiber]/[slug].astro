@@ -10,6 +10,7 @@ import { getProduct, getRelatedProducts } from '@/lib/commerce';
 import { escapeHtml, formatCLP } from '@/lib/format';
 import { getFiberPath, getProductPath, fiberLabel, isFiberPath } from '@/lib/product-path';
 import { enrichProductProfile } from '@/lib/product-profile';
+import { getRankMathSeo, wpProductPermalink } from '@/lib/rankmath';
 import { productSchema } from '@/lib/seo';
 
 const { fiber, slug } = Astro.params;
@@ -35,9 +36,38 @@ const canonical = new URL(productPath, Astro.site).href;
 const image = product.images[0];
 const composition = product.facts.find((item) => /composici/i.test(item.name))?.value;
 const fiberStory = getFiberStory(fiber);
+
+const wpPath = `/producto/${raw.slug}/`;
+const rankMath = await getRankMathSeo({
+  wpUrl: wpProductPermalink(raw.slug),
+  storefrontCanonical: canonical,
+  wpPath,
+});
+
+const pageTitle = rankMath.title || product.name;
+const pageDescription = rankMath.description || product.shortDescription || product.description;
+const pageSchemas = [
+  productSchema(product, canonical),
+  ...rankMath.schemas.filter((node) => {
+    const type = node['@type'];
+    const types = Array.isArray(type) ? type.map(String) : [String(type)];
+    // Evita duplicar Product: usamos el schema afinado del storefront.
+    return !types.includes('Product') && !types.includes('Offer');
+  }),
+];
 ---
 
-<BaseLayout title={product.name} description={product.shortDescription} canonical={canonical} schema={productSchema(product, canonical)}>
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonical}
+  ogTitle={rankMath.ogTitle || pageTitle}
+  ogDescription={rankMath.ogDescription || pageDescription}
+  ogImage={rankMath.ogImage || image?.src}
+  ogType={rankMath.ogType || 'product'}
+  robots={rankMath.robots}
+  schema={pageSchemas}
+>
   <Trail
     items={[
       { label: 'Inicio', href: '/' },

@@ -12,6 +12,11 @@ interface Props {
   description: string;
   canonical?: string;
   noindex?: boolean;
+  ogImage?: string;
+  ogType?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  robots?: string;
   schema?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
@@ -20,12 +25,29 @@ const {
   description,
   canonical = new URL(Astro.url.pathname, Astro.site),
   noindex = false,
+  ogImage,
+  ogType = 'website',
+  ogTitle,
+  ogDescription,
+  robots,
   schema,
 } = Astro.props;
 
 const pageTitle = /casa\s*trama/i.test(title) ? title : `${title} — Casa Trama`;
+const socialTitle = ogTitle
+  ? /casa\s*trama/i.test(ogTitle)
+    ? ogTitle
+    : `${ogTitle} — Casa Trama`
+  : pageTitle;
+const socialDescription = ogDescription || description;
 const schemas = schema ? [organizationSchema].concat(schema as never) : [organizationSchema];
 const gtmId = import.meta.env.PUBLIC_GTM_ID;
+const robotsContent = noindex ? 'noindex,follow' : robots;
+const absoluteOgImage = ogImage
+  ? /^https?:\/\//i.test(ogImage)
+    ? ogImage
+    : new URL(ogImage, Astro.site).href
+  : undefined;
 ---
 
 <!doctype html>
@@ -45,7 +67,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#eee8dc" />
-    {noindex && <meta name="robots" content="noindex,follow" />}
+    {robotsContent && <meta name="robots" content={robotsContent} />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <slot name="head" />
@@ -103,12 +125,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         });
       }, 1600);
     </script>
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="es_CL" />
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={socialTitle} />
+    <meta property="og:description" content={socialDescription} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Casa Trama" />
+    {absoluteOgImage && <meta property="og:image" content={absoluteOgImage} />}
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={socialTitle} />
+    <meta name="twitter:description" content={socialDescription} />
+    {absoluteOgImage && <meta name="twitter:image" content={absoluteOgImage} />}
     {schemas.map((item) => <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />)}
   </head>
   <body>

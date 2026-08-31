@@ -30,6 +30,7 @@ export type Story = {
   content: string;
   date: string;
   index: string;
+  link?: string;
   image?: {
     src: string;
     alt: string;
