@@ -20,6 +20,7 @@ export interface PaymentOrder {
   customer?: PaymentCustomer;
   items?: PaymentLineItem[];
   consent?: PaymentSessionRecord['consent'];
+  customerId?: number;
 }
 
 export interface PaymentSession {

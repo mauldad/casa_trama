@@ -109,7 +109,32 @@ h1, h2, h3, h4, h5, h6 {
 }
 .announcement p { margin: 0; }
 .announcement p:nth-child(2) { justify-self: center; }
-.announcement p:nth-child(3) { justify-self: end; }
+.announcement-end {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 22px);
+}
+.announcement-shipping { margin: 0; }
+.announcement-account-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  opacity: .88;
+  transition: opacity .2s ease;
+}
+.announcement-account-link:hover,
+.announcement-account-link[aria-current='page'] {
+  opacity: 1;
+}
+.announcement-account-link[aria-current='page'] .icon {
+  stroke-width: 1.35;
+}
 
 .site-chrome {
   position: sticky;
@@ -3095,10 +3120,19 @@ body.cart-open { overflow: hidden; }
 
 @media (max-width: 900px) {
   :root { --shell: min(100% - 28px, 760px); --space-section: clamp(56px, 10vw, 96px); }
-  .announcement { font-size: 8px; padding-inline: 16px; }
-  .announcement p:first-child,
-  .announcement p:nth-child(3) { display: none; }
-  .announcement p:nth-child(2) { grid-column: 1 / -1; }
+  .announcement {
+    font-size: 8px;
+    padding-inline: 16px;
+    grid-template-columns: 1fr auto;
+  }
+  .announcement > p:first-child,
+  .announcement-shipping { display: none; }
+  .announcement > p:nth-child(2) { grid-column: 1; justify-self: center; }
+  .announcement-end {
+    grid-column: 2;
+    justify-self: end;
+    gap: 0;
+  }
   .contact-page {
     grid-template-columns: 1fr;
     gap: 40px;
@@ -4435,5 +4469,382 @@ body.cart-open { overflow: hidden; }
   }
   .home-hero.is-entered .hero-panel img {
     transform: scale(1.06) !important;
+  }
+}
+
+/* —— Mi trama (cuenta) —— */
+.account-shell {
+  display: grid;
+  grid-template-columns: minmax(168px, 210px) minmax(0, 1fr);
+  gap: clamp(36px, 5vw, 72px);
+  padding: clamp(28px, 4vw, 48px) 0 var(--space-section);
+  align-items: start;
+}
+.account-side {
+  position: sticky;
+  top: calc(78px + 28px);
+  display: grid;
+  gap: 24px;
+  align-content: start;
+  padding-top: 6px;
+  border-right: 1px solid var(--line);
+  padding-right: clamp(20px, 3vw, 36px);
+}
+.account-kicker {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--clay-dark);
+}
+.account-nav {
+  display: grid;
+  gap: 0;
+}
+.account-nav-link {
+  padding: 11px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--line), transparent 20%);
+  color: color-mix(in srgb, var(--ink), transparent 34%);
+  font-family: var(--display);
+  font-size: clamp(22px, 2.2vw, 28px);
+  font-weight: 400;
+  line-height: 1.05;
+  transition: color .2s ease;
+}
+.account-nav-link:first-child {
+  border-top: 1px solid color-mix(in srgb, var(--line), transparent 20%);
+}
+.account-nav-link:hover,
+.account-nav-link.is-active {
+  color: var(--ink);
+}
+.account-side-foot {
+  display: grid;
+  gap: 10px;
+  padding-top: 8px;
+}
+.account-email {
+  margin: 0;
+  color: color-mix(in srgb, var(--ink), transparent 46%);
+  font-size: 12px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+.account-logout {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: color-mix(in srgb, var(--ink), transparent 40%);
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.account-main {
+  min-width: 0;
+  max-width: 720px;
+}
+.account-page-head {
+  margin-bottom: clamp(28px, 4vw, 40px);
+  padding-bottom: clamp(20px, 3vw, 28px);
+  border-bottom: 1px solid var(--line);
+}
+.account-page-head h1 {
+  margin: 0 0 10px;
+  font-family: var(--display);
+  font-size: clamp(34px, 4.8vw, 52px);
+  font-weight: 400;
+  line-height: 1.02;
+}
+.account-page-head p {
+  margin: 0;
+  max-width: 46ch;
+  color: color-mix(in srgb, var(--ink), transparent 30%);
+  font-size: 15px;
+}
+.account-block + .account-block {
+  margin-top: 36px;
+}
+.account-block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.account-block-head h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+.account-text-link {
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink), transparent 28%);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.account-order-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.account-order-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px 28px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: start;
+}
+.account-order-copy { min-width: 0; }
+.account-order-title {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  font-size: clamp(22px, 2.5vw, 28px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+.account-order-meta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  color: color-mix(in srgb, var(--ink), transparent 42%);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.account-status {
+  color: var(--clay-dark);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.account-order-total {
+  margin: 4px 0 0;
+  font-family: var(--display);
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+}
+.account-order-payment {
+  margin: -12px 0 28px;
+  color: color-mix(in srgb, var(--ink), transparent 40%);
+  font-size: 13px;
+}
+.account-empty {
+  margin: 0;
+  padding: 8px 0 0;
+  color: color-mix(in srgb, var(--ink), transparent 30%);
+}
+.account-auth {
+  max-width: 460px;
+  padding: clamp(48px, 8vw, 100px) 0 var(--space-section);
+}
+.account-auth h1 {
+  margin: 0 0 34px;
+  font-family: var(--display);
+  font-size: clamp(48px, 7vw, 84px);
+  font-weight: 400;
+  line-height: .92;
+}
+.account-auth-foot {
+  margin-top: 28px;
+  font-size: 14px;
+}
+.account-auth-forgot {
+  margin: -4px 0 0;
+  font-size: 13px;
+}
+.account-auth-forgot a {
+  color: var(--clay-dark);
+}
+.account-auth-lede {
+  margin: -18px 0 28px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--ink), transparent 25%);
+}
+.account-form-success {
+  margin: 0 0 8px;
+  padding: 16px 18px;
+  border: 1px solid color-mix(in srgb, var(--clay), transparent 55%);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--paper), #fff 40%);
+  font-size: 14px;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--ink), transparent 12%);
+}
+.account-form {
+  display: grid;
+  gap: 16px;
+  max-width: 100%;
+}
+.account-form--panel {
+  padding-top: 4px;
+}
+.account-form--split {
+  gap: clamp(28px, 4vw, 40px);
+}
+.account-form-panel,
+.account-form fieldset.account-form-panel {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 14px;
+}
+.account-form-panel legend,
+.account-form fieldset legend {
+  margin: 0 0 4px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--display);
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+.account-form-foot {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  padding-top: 8px;
+}
+.account-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 4px;
+}
+.account-form-actions .button {
+  min-width: 160px;
+}
+.account-form label {
+  display: grid;
+  gap: 8px;
+}
+.account-form label span {
+  font-size: 11px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--clay-dark);
+}
+.account-form input {
+  width: 100%;
+  padding: 14px 14px;
+  border: 1px solid color-mix(in srgb, var(--ink), transparent 84%);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--paper), #fff 35%);
+}
+.account-form input:disabled {
+  opacity: .7;
+}
+.account-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.account-form-hint,
+.account-form-ok {
+  margin: 0;
+  font-size: 13px;
+  color: color-mix(in srgb, var(--ink), transparent 35%);
+}
+.account-form-error {
+  margin: 0;
+  color: #8a3b2d;
+  font-size: 14px;
+}
+.account-turnstile {
+  min-height: 65px;
+}
+.account-line-list {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.account-line {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.account-line-copy { min-width: 0; }
+.account-line img,
+.account-line-ph {
+  width: 72px;
+  height: 90px;
+  object-fit: cover;
+  background: var(--paper-deep);
+  border-radius: 10px;
+}
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 8px;
+}
+@media (min-width: 901px) {
+  .account-form--split {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+  .account-form--split .account-form-foot {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 900px) {
+  .account-shell {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-top: 20px;
+  }
+  .account-side {
+    position: static;
+    border-right: 0;
+    padding-right: 0;
+    gap: 16px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .account-nav {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .account-nav::-webkit-scrollbar { display: none; }
+  .account-nav-link {
+    flex: 0 0 auto;
+    padding: 10px 18px 10px 0;
+    border-top: 0;
+    border-bottom: 0;
+    font-size: 22px;
+  }
+  .account-nav-link:first-child { border-top: 0; }
+  .account-side-foot {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+  }
+  .account-email {
+    font-size: 11px;
+  }
+  .account-main { max-width: none; }
+  .account-order-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .account-order-total { margin-top: 0; }
+  .account-form-row {
+    grid-template-columns: 1fr;
   }
 }

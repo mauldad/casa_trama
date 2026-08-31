@@ -1,5 +1,10 @@
 ---
 import Icon from '@/components/Icon.astro';
+import { getSessionFromRequest } from '@/lib/account/session';
+
+const accountSession = await getSessionFromRequest(Astro.request).catch(() => undefined);
+const accountHref = accountSession ? '/cuenta/' : '/cuenta/entrar/';
+const accountLabel = accountSession ? 'Mi trama' : 'Entrar';
 ---
 
 <footer class="site-footer">
@@ -16,6 +21,7 @@ import Icon from '@/components/Icon.astro';
     </section>
     <section>
       <h3>Ayuda</h3>
+      <a href={accountHref}>{accountLabel}</a>
       <a href="/despachos/">Despachos</a>
       <a href="/cambios-y-devoluciones/">Cambios y devoluciones</a>
       <a href="/guias/fibras-nobles/">Cuidado de fibras</a>

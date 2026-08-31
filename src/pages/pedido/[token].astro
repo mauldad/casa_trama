@@ -1,8 +1,13 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getSessionFromRequest } from '@/lib/account/session';
+import { getPaymentSessionByOrderToken } from '@/lib/payment/session-store';
 
 const { token } = Astro.params;
 const status = Astro.url.searchParams.get('status') || 'unknown';
+const account = await getSessionFromRequest(Astro.request).catch(() => undefined);
+const paymentSession = token ? await getPaymentSessionByOrderToken(token).catch(() => undefined) : undefined;
+const guestEmail = paymentSession?.customerEmail || '';
 
 const copy: Record<string, { title: string; message: string }> = {
   approved: {
@@ -29,6 +34,7 @@ const copy: Record<string, { title: string; message: string }> = {
 
 const page = copy[status] ?? copy.unknown!;
 const showRetry = status === 'rejected' || status === 'cancelled';
+const showAccountCta = status === 'approved' && !account && Boolean(guestEmail);
 ---
 
 <BaseLayout title={page.title} description={page.message} noindex>
@@ -37,9 +43,25 @@ const showRetry = status === 'rejected' || status === 'cancelled';
     <h1>{page.title}</h1>
     <p>{page.message}</p>
     {token && <p class="checkout-note">Referencia interna: {token}</p>}
+    {showAccountCta && (
+      <p class="checkout-note">
+        Guarda este pedido en <strong>Mi trama</strong> para verlo cuando vuelvas.
+      </p>
+    )}
     <div class="action-row">
       <a class="button" href="/tienda/">Seguir comprando</a>
       {showRetry && <a class="button-secondary" href="/checkout/">Volver al checkout</a>}
+      {account && status === 'approved' && (
+        <a class="button-secondary" href="/cuenta/pedidos/">Ver en Mi trama</a>
+      )}
+      {showAccountCta && (
+        <a
+          class="button-secondary"
+          href={`/cuenta/crear/?email=${encodeURIComponent(guestEmail)}`}
+        >
+          Crear acceso a Mi trama
+        </a>
+      )}
     </div>
   </section>
   {status === 'approved' && (

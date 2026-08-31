@@ -1,0 +1,127 @@
+---
+import AccountLayout from '@/layouts/AccountLayout.astro';
+import { requireAccountPage } from '@/lib/account/page';
+import { getWooCustomer } from '@/lib/account/woo-customer';
+
+const gate = await requireAccountPage(Astro.request);
+if (gate.redirect) return Astro.redirect(`${gate.redirect}?next=/cuenta/direcciones/`);
+const session = gate.session!;
+
+let billing = {
+  first_name: session.firstName,
+  last_name: session.lastName,
+  address_1: '',
+  address_2: '',
+  city: '',
+  state: '',
+  phone: '',
+  country: 'CL',
+};
+let shipping = { ...billing };
+
+try {
+  const customer = await getWooCustomer(session.customerId);
+  billing = { ...billing, ...customer.billing, country: customer.billing?.country || 'CL' };
+  shipping = { ...shipping, ...customer.shipping, country: customer.shipping?.country || 'CL' };
+} catch (error) {
+  console.warn('[cuenta/direcciones]', error);
+}
+---
+
+<AccountLayout
+  title="Direcciones · Mi trama"
+  heading="Tus direcciones"
+  lede="Facturación y despacho en Chile."
+  active="direcciones"
+  email={session.email}
+>
+  <form class="account-form account-form--split" data-account-addresses data-csrf={session.csrf}>
+    <fieldset class="account-form-panel">
+      <legend>Facturación</legend>
+      <div class="account-form-row">
+        <label><span>Nombre</span><input name="b_first_name" value={billing.first_name || ''} /></label>
+        <label><span>Apellido</span><input name="b_last_name" value={billing.last_name || ''} /></label>
+      </div>
+      <label><span>Dirección</span><input name="b_address_1" value={billing.address_1 || ''} /></label>
+      <label><span>Depto / casa</span><input name="b_address_2" value={billing.address_2 || ''} /></label>
+      <div class="account-form-row">
+        <label><span>Comuna</span><input name="b_city" value={billing.city || ''} /></label>
+        <label><span>Región</span><input name="b_state" value={billing.state || ''} /></label>
+      </div>
+      <label><span>Teléfono</span><input name="b_phone" value={billing.phone || ''} /></label>
+    </fieldset>
+
+    <fieldset class="account-form-panel">
+      <legend>Despacho</legend>
+      <div class="account-form-row">
+        <label><span>Nombre</span><input name="s_first_name" value={shipping.first_name || ''} /></label>
+        <label><span>Apellido</span><input name="s_last_name" value={shipping.last_name || ''} /></label>
+      </div>
+      <label><span>Dirección</span><input name="s_address_1" value={shipping.address_1 || ''} /></label>
+      <label><span>Depto / casa</span><input name="s_address_2" value={shipping.address_2 || ''} /></label>
+      <div class="account-form-row">
+        <label><span>Comuna</span><input name="s_city" value={shipping.city || ''} /></label>
+        <label><span>Región</span><input name="s_state" value={shipping.state || ''} /></label>
+      </div>
+    </fieldset>
+
+    <div class="account-form-foot">
+      <p class="account-form-error" data-error hidden></p>
+      <p class="account-form-ok" data-ok hidden>Direcciones guardadas.</p>
+      <div class="account-form-actions">
+        <button class="button" type="submit">Guardar direcciones</button>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    const form = document.querySelector<HTMLFormElement>('[data-account-addresses]');
+    const errorEl = form?.querySelector('[data-error]') as HTMLElement | null | undefined;
+    const okEl = form?.querySelector('[data-ok]') as HTMLElement | null | undefined;
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form) return;
+      const d = new FormData(form);
+      if (errorEl) errorEl.hidden = true;
+      if (okEl) okEl.hidden = true;
+      const response = await fetch('/api/account/addresses', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CT-CSRF': form.dataset.csrf || '',
+        },
+        body: JSON.stringify({
+          billing: {
+            first_name: d.get('b_first_name'),
+            last_name: d.get('b_last_name'),
+            address_1: d.get('b_address_1'),
+            address_2: d.get('b_address_2'),
+            city: d.get('b_city'),
+            state: d.get('b_state'),
+            phone: d.get('b_phone'),
+            country: 'CL',
+          },
+          shipping: {
+            first_name: d.get('s_first_name'),
+            last_name: d.get('s_last_name'),
+            address_1: d.get('s_address_1'),
+            address_2: d.get('s_address_2'),
+            city: d.get('s_city'),
+            state: d.get('s_state'),
+            country: 'CL',
+          },
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        if (errorEl) {
+          errorEl.textContent = payload.error || 'No pudimos guardar.';
+          errorEl.hidden = false;
+        }
+        return;
+      }
+      if (payload.csrf) form.dataset.csrf = payload.csrf;
+      if (okEl) okEl.hidden = false;
+    });
+  </script>
+</AccountLayout>

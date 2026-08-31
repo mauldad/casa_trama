@@ -1,0 +1,114 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TurnstileField from '@/components/TurnstileField.astro';
+import { getSessionFromRequest } from '@/lib/account/session';
+
+const session = await getSessionFromRequest(Astro.request);
+if (session) return Astro.redirect('/cuenta/');
+
+const token = Astro.url.searchParams.get('token') || '';
+const invalid = !token;
+---
+
+<BaseLayout title="Nueva contraseña" description="Crea una nueva contraseña para Mi trama." noindex>
+  <section class="account-auth shell">
+    <p class="eyebrow">Mi trama</p>
+    <h1>Nueva contraseña</h1>
+    {invalid ? (
+      <>
+        <p class="account-form-error" role="alert">
+          El enlace no es válido o expiró. Solicita uno nuevo.
+        </p>
+        <p class="account-auth-foot">
+          <a href="/cuenta/olvide/">Solicitar enlace</a>
+        </p>
+      </>
+    ) : (
+      <>
+        <p class="account-auth-lede">Elige una contraseña de al menos 8 caracteres.</p>
+        <form class="account-form" data-password-reset>
+          <input type="hidden" name="token" value={token} />
+          <label>
+            <span>Nueva contraseña</span>
+            <input type="password" name="password" required minlength="8" autocomplete="new-password" />
+          </label>
+          <label>
+            <span>Confirmar contraseña</span>
+            <input type="password" name="passwordConfirm" required minlength="8" autocomplete="new-password" />
+          </label>
+          <p class="account-form-error" data-error hidden></p>
+          <TurnstileField action="password-reset" />
+          <button class="button" type="submit">Guardar contraseña</button>
+        </form>
+        <p class="account-auth-foot">
+          <a href="/cuenta/entrar/">Volver a entrar</a>
+        </p>
+      </>
+    )}
+  </section>
+  {!invalid && (
+    <script is:inline define:vars={{ token }}>
+      const form = document.querySelector('[data-password-reset]');
+      const errorEl = form?.querySelector('[data-error]');
+      const turnstileWidget = form?.querySelector('.cf-turnstile');
+
+      function resetTurnstile() {
+        if (turnstileWidget instanceof HTMLElement && window.turnstile) {
+          window.turnstile.reset(turnstileWidget);
+        }
+      }
+
+      form?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!form || !(form instanceof HTMLFormElement)) return;
+        const data = new FormData(form);
+        const password = String(data.get('password') || '');
+        const confirm = String(data.get('passwordConfirm') || '');
+        const turnstileToken = data.get('cf-turnstile-response');
+        if (errorEl instanceof HTMLElement) errorEl.hidden = true;
+
+        if (password !== confirm) {
+          if (errorEl instanceof HTMLElement) {
+            errorEl.textContent = 'Las contraseñas no coinciden.';
+            errorEl.hidden = false;
+          }
+          return;
+        }
+
+        if (!turnstileToken) {
+          if (errorEl instanceof HTMLElement) {
+            errorEl.textContent = 'Completa la verificación antes de continuar.';
+            errorEl.hidden = false;
+          }
+          return;
+        }
+
+        const button = form.querySelector('button[type="submit"]');
+        if (button instanceof HTMLButtonElement) button.disabled = true;
+        try {
+          const response = await fetch('/api/account/password/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              token,
+              password,
+              turnstileToken,
+            }),
+          });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.error || 'No pudimos guardar la contraseña.');
+          window.location.href = '/cuenta/entrar/?reset=1';
+        } catch (error) {
+          resetTurnstile();
+          if (errorEl instanceof HTMLElement) {
+            errorEl.textContent =
+              error instanceof Error ? error.message : 'No pudimos guardar la contraseña.';
+            errorEl.hidden = false;
+          }
+        } finally {
+          if (button instanceof HTMLButtonElement) button.disabled = false;
+        }
+      });
+    </script>
+  )}
+</BaseLayout>

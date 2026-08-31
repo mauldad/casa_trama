@@ -274,3 +274,19 @@ export function buildPaymentFailedHtml(options: {
     footerNote: 'Tu carro sigue disponible. Estamos para acompañarte si lo necesitas.',
   });
 }
+
+export function buildPasswordResetHtml(options: { name: string; resetUrl: string }) {
+  return emailShell({
+    title: 'Restablece tu acceso',
+    preview: 'Enlace para crear una nueva contraseña en Mi trama.',
+    eyebrow: 'Mi trama · Casa Trama',
+    body: `
+      ${prose(`Hola ${escapeHtml(options.name)}, recibimos una solicitud para restablecer la contraseña de tu acceso en Casa Trama.`)}
+      ${prose('Si fuiste tú, usa el botón de abajo. El enlace caduca en una hora.')}
+      ${ctaButton(options.resetUrl, 'Restablecer contraseña')}
+      ${prose('Si no pediste este cambio, ignora este correo. Tu contraseña actual sigue igual.')}
+      ${secondaryLink(options.resetUrl, 'Abrir enlace de restablecimiento')}
+    `,
+    footerNote: 'Por seguridad, no compartas este enlace con nadie.',
+  });
+}

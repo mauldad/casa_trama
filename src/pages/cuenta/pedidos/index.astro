@@ -1,0 +1,76 @@
+---
+import AccountLayout from '@/layouts/AccountLayout.astro';
+import { formatClp, formatOrderDate, requireAccountPage } from '@/lib/account/page';
+import { listCustomerOrders, orderStatusLabel } from '@/lib/account/woo-customer';
+
+const gate = await requireAccountPage(Astro.request, '/cuenta/entrar/');
+if (gate.redirect) return Astro.redirect(`${gate.redirect}?next=/cuenta/pedidos/`);
+const session = gate.session!;
+
+let orders: Array<{
+  id: number;
+  number: string;
+  statusLabel: string;
+  date: string;
+  total: string;
+  preview: string;
+  itemCount: number;
+}> = [];
+let loadError = false;
+
+try {
+  const raw = await listCustomerOrders(session.customerId, 1, 30);
+  orders = raw.map((order) => ({
+    id: order.id,
+    number: order.number,
+    statusLabel: orderStatusLabel(order.status),
+    date: order.date_created,
+    total: order.total,
+    preview: order.line_items?.[0]?.name || 'Pedido Casa Trama',
+    itemCount: order.line_items?.reduce((sum, item) => sum + item.quantity, 0) || 0,
+  }));
+} catch (error) {
+  console.warn('[cuenta/pedidos]', error);
+  loadError = true;
+}
+---
+
+<AccountLayout
+  title="Pedidos · Mi trama"
+  heading="Tus piezas pedidas"
+  lede="Historial de lo que elegiste en Casa Trama."
+  active="pedidos"
+  email={session.email}
+>
+  {loadError && <p class="account-form-error">No pudimos cargar los pedidos ahora.</p>}
+
+  {!loadError && orders.length === 0 && (
+    <p class="account-empty">
+      Todavía no hay pedidos vinculados a esta cuenta.{' '}
+      <a href="/tienda/">Ir a la tienda</a>
+    </p>
+  )}
+
+  {orders.length > 0 && (
+    <ul class="account-order-list">
+      {orders.map((order) => (
+        <li>
+          <a class="account-order-row" href={`/cuenta/pedidos/${order.id}/`}>
+            <div class="account-order-copy">
+              <p class="account-order-title">{order.preview}</p>
+              <p class="account-order-meta">
+                <span>Pedido #{order.number}</span>
+                <span>{formatOrderDate(order.date)}</span>
+                <span class="account-status">{order.statusLabel}</span>
+                <span>
+                  {order.itemCount} {order.itemCount === 1 ? 'pieza' : 'piezas'}
+                </span>
+              </p>
+            </div>
+            <p class="account-order-total">{formatClp(order.total)}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</AccountLayout>

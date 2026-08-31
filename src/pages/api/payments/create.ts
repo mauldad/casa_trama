@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { getSessionFromRequest } from '@/lib/account/session';
 import { upsertLoopsContact } from '@/lib/loops';
 import { getSiteUrl } from '@/lib/payment/transbank';
 import { getPaymentProvider } from '@/lib/payment';
@@ -89,6 +90,8 @@ export const POST: APIRoute = async ({ request }) => {
     const consentCapturedAt =
       String(body.consentCapturedAt || '').trim() || new Date().toISOString();
 
+    const account = await getSessionFromRequest(request).catch(() => undefined);
+
     const provider = getPaymentProvider();
     const session = await provider.createPayment({
       orderId,
@@ -100,6 +103,7 @@ export const POST: APIRoute = async ({ request }) => {
       orderToken,
       customer,
       items,
+      customerId: account?.customerId,
       consent: {
         acceptTerms: true,
         newsletter: wantsNewsletter,

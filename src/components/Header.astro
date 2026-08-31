@@ -1,17 +1,21 @@
 ---
 import Icon from '@/components/Icon.astro';
+import { getSessionFromRequest } from '@/lib/account/session';
 
 const currentPath = Astro.url.pathname;
+const accountSession = await getSessionFromRequest(Astro.request).catch(() => undefined);
 const leftLinks = [
   { href: '/colecciones/', label: 'Colecciones' },
   { href: '/guias/fibras-nobles/', label: 'Materiales' },
 ];
 const rightLinks = [{ href: '/nosotras/', label: 'Nosotras' }];
+const accountHref = accountSession ? '/cuenta/' : '/cuenta/entrar/';
 const mobileLinks = [
   { href: '/tienda/', label: 'Tienda' },
   ...leftLinks,
   { href: '/historias/', label: 'Historias' },
   { href: '/nosotras/', label: 'Nosotras' },
+  { href: accountHref, label: accountSession ? 'Mi trama' : 'Entrar' },
   { href: '/carro/', label: 'Bolsa' },
 ];
 ---

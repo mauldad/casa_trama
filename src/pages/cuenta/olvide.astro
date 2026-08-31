@@ -1,0 +1,96 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TurnstileField from '@/components/TurnstileField.astro';
+import { getSessionFromRequest } from '@/lib/account/session';
+
+const session = await getSessionFromRequest(Astro.request);
+if (session) return Astro.redirect('/cuenta/');
+
+const emailPrefill = Astro.url.searchParams.get('email') || '';
+const sent = Astro.url.searchParams.get('sent') === '1';
+---
+
+<BaseLayout title="Olvidé mi contraseña" description="Recupera el acceso a Mi trama en Casa Trama." noindex>
+  <section class="account-auth shell">
+    <p class="eyebrow">Mi trama</p>
+    <h1>Recuperar acceso</h1>
+    {sent ? (
+      <p class="account-form-success" role="status">
+        Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña. Revisa tu bandeja
+        y spam.
+      </p>
+    ) : (
+      <>
+        <p class="account-auth-lede">
+          Usa el correo de tu acceso Mi trama o el mismo correo con el que compraste en Casa Trama.
+          Si nunca creaste acceso pero sí tienes pedidos, te enviaremos un enlace para activarlo.
+        </p>
+        <form class="account-form" data-password-forgot>
+          <label>
+            <span>Correo</span>
+            <input type="email" name="email" required autocomplete="email" value={emailPrefill} />
+          </label>
+          <p class="account-form-error" data-error hidden></p>
+          <TurnstileField action="password-forgot" />
+          <button class="button" type="submit">Enviar enlace</button>
+        </form>
+      </>
+    )}
+    <p class="account-auth-foot">
+      <a href="/cuenta/entrar/">Volver a entrar</a>
+    </p>
+  </section>
+  {!sent && (
+    <script is:inline>
+      const form = document.querySelector('[data-password-forgot]');
+      const errorEl = form?.querySelector('[data-error]');
+      const turnstileWidget = form?.querySelector('.cf-turnstile');
+
+      function resetTurnstile() {
+        if (turnstileWidget instanceof HTMLElement && window.turnstile) {
+          window.turnstile.reset(turnstileWidget);
+        }
+      }
+
+      form?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!form || !(form instanceof HTMLFormElement)) return;
+        const data = new FormData(form);
+        const turnstileToken = data.get('cf-turnstile-response');
+        if (errorEl instanceof HTMLElement) errorEl.hidden = true;
+
+        if (!turnstileToken) {
+          if (errorEl instanceof HTMLElement) {
+            errorEl.textContent = 'Completa la verificación antes de continuar.';
+            errorEl.hidden = false;
+          }
+          return;
+        }
+
+        const button = form.querySelector('button[type="submit"]');
+        if (button instanceof HTMLButtonElement) button.disabled = true;
+        try {
+          const response = await fetch('/api/account/password/forgot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: data.get('email'),
+              turnstileToken,
+            }),
+          });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.error || 'No pudimos enviar el enlace.');
+          window.location.href = '/cuenta/olvide/?sent=1';
+        } catch (error) {
+          resetTurnstile();
+          if (errorEl instanceof HTMLElement) {
+            errorEl.textContent = error instanceof Error ? error.message : 'No pudimos enviar el enlace.';
+            errorEl.hidden = false;
+          }
+        } finally {
+          if (button instanceof HTMLButtonElement) button.disabled = false;
+        }
+      });
+    </script>
+  )}
+</BaseLayout>

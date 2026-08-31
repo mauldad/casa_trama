@@ -47,6 +47,7 @@ export const webpayPaymentProvider: PaymentProvider = {
       status: 'pending',
       createdAt: new Date().toISOString(),
       consent: order.consent,
+      customerId: order.customerId,
     });
 
     return {

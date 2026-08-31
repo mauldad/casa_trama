@@ -1,0 +1,98 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TurnstileField from '@/components/TurnstileField.astro';
+import { getSessionFromRequest } from '@/lib/account/session';
+
+const session = await getSessionFromRequest(Astro.request);
+if (session) return Astro.redirect('/cuenta/');
+
+const emailPrefill = Astro.url.searchParams.get('email') || '';
+---
+
+<BaseLayout title="Crear acceso · Mi trama" description="Crea tu acceso a Mi trama en Casa Trama." noindex>
+  <section class="account-auth shell">
+    <p class="eyebrow">Mi trama</p>
+    <h1>Crear acceso</h1>
+    <form class="account-form" data-account-register>
+      <div class="account-form-row">
+        <label>
+          <span>Nombre</span>
+          <input type="text" name="firstName" autocomplete="given-name" />
+        </label>
+        <label>
+          <span>Apellido</span>
+          <input type="text" name="lastName" autocomplete="family-name" />
+        </label>
+      </div>
+      <label>
+        <span>Correo</span>
+        <input type="email" name="email" required autocomplete="email" value={emailPrefill} />
+      </label>
+      <label>
+        <span>Contraseña</span>
+        <input type="password" name="password" required minlength="8" autocomplete="new-password" />
+      </label>
+      <p class="account-form-hint">Mínimo 8 caracteres.</p>
+      <p class="account-form-error" data-error hidden></p>
+      <TurnstileField action="signup" />
+      <button class="button" type="submit">Crear acceso</button>
+    </form>
+    <p class="account-auth-foot">
+      ¿Ya tienes acceso? <a href="/cuenta/entrar/">Entrar</a>
+    </p>
+  </section>
+  <script>
+    const form = document.querySelector('[data-account-register]');
+    const errorEl = form?.querySelector('[data-error]') as HTMLElement | null | undefined;
+    const turnstileWidget = form?.querySelector('.cf-turnstile');
+
+    function resetTurnstile() {
+      if (turnstileWidget instanceof HTMLElement && window.turnstile) {
+        window.turnstile.reset(turnstileWidget);
+      }
+    }
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form || !(form instanceof HTMLFormElement)) return;
+      const data = new FormData(form);
+      const turnstileToken = data.get('cf-turnstile-response');
+      if (errorEl) errorEl.hidden = true;
+
+      if (!turnstileToken) {
+        if (errorEl) {
+          errorEl.textContent = 'Completa la verificación antes de continuar.';
+          errorEl.hidden = false;
+        }
+        return;
+      }
+
+      const button = form.querySelector('button[type="submit"]');
+      if (button instanceof HTMLButtonElement) button.disabled = true;
+      try {
+        const response = await fetch('/api/account/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: data.get('firstName'),
+            lastName: data.get('lastName'),
+            email: data.get('email'),
+            password: data.get('password'),
+            turnstileToken,
+          }),
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No pudimos crear la cuenta.');
+        window.location.href = '/cuenta/';
+      } catch (error) {
+        resetTurnstile();
+        if (errorEl) {
+          errorEl.textContent = error instanceof Error ? error.message : 'No pudimos crear la cuenta.';
+          errorEl.hidden = false;
+        }
+      } finally {
+        if (button instanceof HTMLButtonElement) button.disabled = false;
+      }
+    });
+  </script>
+</BaseLayout>

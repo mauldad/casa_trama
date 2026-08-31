@@ -35,6 +35,8 @@ export interface PaymentSessionRecord {
   authorizationCode?: string;
   createdAt: string;
   emailsSentAt?: string;
+  /** Cliente Woo autenticado (Mi trama) */
+  customerId?: number;
   /** ID / número del pedido creado en WooCommerce */
   wooOrderId?: number;
   wooOrderNumber?: string;

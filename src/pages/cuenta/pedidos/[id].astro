@@ -1,0 +1,97 @@
+---
+import AccountLayout from '@/layouts/AccountLayout.astro';
+import { formatClp, formatOrderDate, requireAccountPage } from '@/lib/account/page';
+import { getCustomerOrder, orderStatusLabel } from '@/lib/account/woo-customer';
+
+const gate = await requireAccountPage(Astro.request);
+if (gate.redirect) {
+  return Astro.redirect(`${gate.redirect}?next=${encodeURIComponent(Astro.url.pathname)}`);
+}
+const session = gate.session!;
+const orderId = Number(Astro.params.id);
+if (!orderId) return Astro.redirect('/cuenta/pedidos/');
+
+let order: Awaited<ReturnType<typeof getCustomerOrder>> | null = null;
+try {
+  order = await getCustomerOrder(orderId);
+  if (order.customer_id !== session.customerId) order = null;
+} catch {
+  order = null;
+}
+
+if (!order) return Astro.redirect('/cuenta/pedidos/');
+
+const statusLabel = orderStatusLabel(order.status);
+---
+
+<AccountLayout
+  title={`Pedido #${order.number} · Mi trama`}
+  heading={`Pedido #${order.number}`}
+  lede={`${statusLabel} · ${formatOrderDate(order.date_created)} · ${formatClp(order.total)}`}
+  active="pedidos"
+  email={session.email}
+>
+  <p class="account-order-payment">
+    {order.payment_method_title || 'Webpay'}
+  </p>
+
+  <ul class="account-line-list">
+    {order.line_items.map((item) => (
+      <li class="account-line">
+        {item.image?.src ? (
+          <img src={item.image.src} alt="" width="72" height="90" loading="lazy" />
+        ) : (
+          <span class="account-line-ph" aria-hidden="true" />
+        )}
+        <div class="account-line-copy">
+          <p class="account-order-title">{item.name}</p>
+          <p class="account-order-meta">
+            Cantidad {item.quantity} · {formatClp(item.total)}
+          </p>
+        </div>
+      </li>
+    ))}
+  </ul>
+
+  <div class="account-actions">
+    <button class="button" type="button" data-reorder data-order-id={order.id} data-csrf={session.csrf}>
+      Volver a pedir
+    </button>
+    <a class="button-secondary" href="/cuenta/pedidos/">Volver a pedidos</a>
+  </div>
+
+  <script>
+    const button = document.querySelector<HTMLButtonElement>('[data-reorder]');
+    button?.addEventListener('click', async () => {
+      const orderId = button.dataset.orderId;
+      const csrf = button.dataset.csrf || '';
+      button.disabled = true;
+      try {
+        const response = await fetch(`/api/account/orders/${orderId}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CT-CSRF': csrf,
+          },
+          body: JSON.stringify({ action: 'reorder' }),
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No pudimos preparar la recompra.');
+
+        const key = 'casa-trama-cart-v1';
+        const current = JSON.parse(localStorage.getItem(key) || '[]');
+        const next = Array.isArray(current) ? [...current] : [];
+        for (const item of payload.items || []) {
+          const existing = next.find((row: { productId: number }) => row.productId === item.productId);
+          if (existing) existing.quantity += item.quantity;
+          else next.push(item);
+        }
+        localStorage.setItem(key, JSON.stringify(next));
+        window.location.href = '/carro/';
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'No pudimos preparar la recompra.');
+        button.disabled = false;
+      }
+    });
+  </script>
+</AccountLayout>

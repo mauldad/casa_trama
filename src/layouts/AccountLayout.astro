@@ -1,0 +1,77 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+interface Props {
+  title: string;
+  heading: string;
+  lede?: string;
+  description?: string;
+  active?: 'inicio' | 'pedidos' | 'datos' | 'direcciones';
+  email?: string;
+}
+
+const {
+  title,
+  heading,
+  lede,
+  description = 'Tu espacio Casa Trama: pedidos, datos y direcciones.',
+  active = 'inicio',
+  email = '',
+} = Astro.props;
+
+const nav = [
+  { id: 'inicio', href: '/cuenta/', label: 'Inicio' },
+  { id: 'pedidos', href: '/cuenta/pedidos/', label: 'Pedidos' },
+  { id: 'datos', href: '/cuenta/datos/', label: 'Datos' },
+  { id: 'direcciones', href: '/cuenta/direcciones/', label: 'Direcciones' },
+] as const;
+---
+
+<BaseLayout title={title} description={description} noindex>
+  <div class="account-shell shell">
+    <aside class="account-side" aria-label="Mi trama">
+      <p class="account-kicker">Mi trama</p>
+      <nav class="account-nav" aria-label="Secciones de cuenta">
+        {nav.map((item) => (
+          <a
+            href={item.href}
+            class:list={['account-nav-link', { 'is-active': active === item.id }]}
+            aria-current={active === item.id ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+      <div class="account-side-foot">
+        {email && <p class="account-email">{email}</p>}
+        <form method="post" action="/api/account/logout" data-account-logout>
+          <button class="account-logout" type="submit">Salir</button>
+        </form>
+      </div>
+    </aside>
+    <section class="account-main">
+      <header class="account-page-head">
+        <h1>{heading}</h1>
+        {lede && <p>{lede}</p>}
+      </header>
+      <slot />
+    </section>
+  </div>
+  <script>
+    document.querySelectorAll<HTMLFormElement>('[data-account-logout]').forEach((form) => {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const csrf = document.cookie
+          .split(';')
+          .map((part) => part.trim())
+          .find((part) => part.startsWith('ct_csrf='))
+          ?.slice('ct_csrf='.length);
+        await fetch('/api/account/logout', {
+          method: 'POST',
+          headers: csrf ? { 'X-CT-CSRF': decodeURIComponent(csrf) } : {},
+        });
+        window.location.href = '/cuenta/entrar/';
+      });
+    });
+  </script>
+</BaseLayout>

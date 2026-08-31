@@ -1,0 +1,97 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TurnstileField from '@/components/TurnstileField.astro';
+import { getSessionFromRequest } from '@/lib/account/session';
+
+const session = await getSessionFromRequest(Astro.request);
+if (session) return Astro.redirect('/cuenta/');
+
+const next = Astro.url.searchParams.get('next') || '/cuenta/';
+const emailPrefill = Astro.url.searchParams.get('email') || '';
+---
+
+<BaseLayout title="Entrar a Mi trama" description="Accede a tus pedidos y datos en Casa Trama." noindex>
+  <section class="account-auth shell">
+    <p class="eyebrow">Mi trama</p>
+    <h1>Entrar</h1>
+    {Astro.url.searchParams.get('reset') === '1' && (
+      <p class="account-form-success" role="status">
+        Contraseña actualizada. Ya puedes entrar con tu nueva clave.
+      </p>
+    )}
+    <form class="account-form" data-account-login>
+      <label>
+        <span>Correo</span>
+        <input type="email" name="email" required autocomplete="email" value={emailPrefill} />
+      </label>
+      <label>
+        <span>Contraseña</span>
+        <input type="password" name="password" required minlength="8" autocomplete="current-password" />
+      </label>
+      <p class="account-auth-forgot">
+        <a href="/cuenta/olvide/">¿Olvidaste tu contraseña?</a>
+      </p>
+      <p class="account-form-error" data-error hidden></p>
+      <TurnstileField action="login" />
+      <button class="button" type="submit">Entrar</button>
+    </form>
+    <p class="account-auth-foot">
+      ¿Primera vez?{' '}
+      <a href={emailPrefill ? `/cuenta/crear/?email=${encodeURIComponent(emailPrefill)}` : '/cuenta/crear/'}>
+        Crear acceso
+      </a>
+    </p>
+  </section>
+  <script is:inline define:vars={{ next }}>
+    const form = document.querySelector('[data-account-login]');
+    const errorEl = form?.querySelector('[data-error]');
+    const turnstileWidget = form?.querySelector('.cf-turnstile');
+
+    function resetTurnstile() {
+      if (turnstileWidget instanceof HTMLElement && window.turnstile) {
+        window.turnstile.reset(turnstileWidget);
+      }
+    }
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form || !(form instanceof HTMLFormElement)) return;
+      const data = new FormData(form);
+      const turnstileToken = data.get('cf-turnstile-response');
+      if (errorEl instanceof HTMLElement) errorEl.hidden = true;
+
+      if (!turnstileToken) {
+        if (errorEl instanceof HTMLElement) {
+          errorEl.textContent = 'Completa la verificación antes de continuar.';
+          errorEl.hidden = false;
+        }
+        return;
+      }
+
+      const button = form.querySelector('button[type="submit"]');
+      if (button instanceof HTMLButtonElement) button.disabled = true;
+      try {
+        const response = await fetch('/api/account/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: data.get('email'),
+            password: data.get('password'),
+            turnstileToken,
+          }),
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'No pudimos entrar.');
+        window.location.href = next.startsWith('/') ? next : '/cuenta/';
+      } catch (error) {
+        resetTurnstile();
+        if (errorEl instanceof HTMLElement) {
+          errorEl.textContent = error instanceof Error ? error.message : 'No pudimos entrar.';
+          errorEl.hidden = false;
+        }
+      } finally {
+        if (button instanceof HTMLButtonElement) button.disabled = false;
+      }
+    });
+  </script>
+</BaseLayout>

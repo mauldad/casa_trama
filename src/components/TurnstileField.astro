@@ -1,0 +1,22 @@
+---
+interface Props {
+  action: 'login' | 'signup' | 'password-forgot' | 'password-reset';
+}
+
+const { action } = Astro.props;
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+---
+
+{
+  siteKey ? (
+    <>
+      <div
+        class="account-turnstile cf-turnstile"
+        data-sitekey={siteKey}
+        data-action={action}
+        data-theme="light"
+      />
+      <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+    </>
+  ) : null
+}

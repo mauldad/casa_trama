@@ -2,6 +2,10 @@
 
 interface Window {
   dataLayer?: Array<Record<string, unknown>>;
+  turnstile?: {
+    reset: (widget?: HTMLElement | string) => void;
+    getResponse: (widget?: HTMLElement | string) => string | undefined;
+  };
 }
 
 interface ImportMetaEnv {
@@ -12,6 +16,11 @@ interface ImportMetaEnv {
   readonly WC_CONSUMER_KEY?: string;
   readonly WC_CONSUMER_SECRET?: string;
   readonly WP_URL?: string;
+  readonly CT_AUTH_SECRET?: string;
+  readonly CT_SESSION_SECRET?: string;
+  readonly PUBLIC_TURNSTILE_SITE_KEY?: string;
+  readonly TURNSTILE_SECRET?: string;
+  readonly TURNSTILE_HOSTNAMES?: string;
   readonly PUBLIC_GTM_ID: string;
   readonly RESEND_API_KEY: string;
   readonly RESEND_FROM_EMAIL?: string;

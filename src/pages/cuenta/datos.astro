@@ -1,0 +1,90 @@
+---
+import AccountLayout from '@/layouts/AccountLayout.astro';
+import { requireAccountPage } from '@/lib/account/page';
+import { getWooCustomer } from '@/lib/account/woo-customer';
+
+const gate = await requireAccountPage(Astro.request);
+if (gate.redirect) return Astro.redirect(`${gate.redirect}?next=/cuenta/datos/`);
+const session = gate.session!;
+
+let firstName = session.firstName;
+let lastName = session.lastName;
+let phone = '';
+try {
+  const customer = await getWooCustomer(session.customerId);
+  firstName = customer.first_name || firstName;
+  lastName = customer.last_name || lastName;
+  phone = customer.billing?.phone || '';
+} catch (error) {
+  console.warn('[cuenta/datos]', error);
+}
+---
+
+<AccountLayout
+  title="Datos · Mi trama"
+  heading="Tus datos"
+  lede="Nombre y teléfono para coordinar despachos."
+  active="datos"
+  email={session.email}
+>
+  <form class="account-form account-form--panel" data-account-datos data-csrf={session.csrf}>
+    <div class="account-form-row">
+      <label>
+        <span>Nombre</span>
+        <input type="text" name="firstName" value={firstName} autocomplete="given-name" />
+      </label>
+      <label>
+        <span>Apellido</span>
+        <input type="text" name="lastName" value={lastName} autocomplete="family-name" />
+      </label>
+    </div>
+    <label>
+      <span>Correo</span>
+      <input type="email" value={session.email} disabled />
+    </label>
+    <label>
+      <span>Teléfono</span>
+      <input type="tel" name="phone" value={phone} autocomplete="tel" />
+    </label>
+    <p class="account-form-error" data-error hidden></p>
+    <p class="account-form-ok" data-ok hidden>Guardado.</p>
+    <div class="account-form-actions">
+      <button class="button" type="submit">Guardar</button>
+    </div>
+  </form>
+
+  <script>
+    const form = document.querySelector<HTMLFormElement>('[data-account-datos]');
+    const errorEl = form?.querySelector('[data-error]') as HTMLElement | null | undefined;
+    const okEl = form?.querySelector('[data-ok]') as HTMLElement | null | undefined;
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form) return;
+      const data = new FormData(form);
+      if (errorEl) errorEl.hidden = true;
+      if (okEl) okEl.hidden = true;
+      const response = await fetch('/api/account/me', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CT-CSRF': form.dataset.csrf || '',
+        },
+        body: JSON.stringify({
+          firstName: data.get('firstName'),
+          lastName: data.get('lastName'),
+          phone: data.get('phone'),
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        if (errorEl) {
+          errorEl.textContent = payload.error || 'No pudimos guardar.';
+          errorEl.hidden = false;
+        }
+        return;
+      }
+      if (payload.csrf) form.dataset.csrf = payload.csrf;
+      if (okEl) okEl.hidden = false;
+    });
+  </script>
+</AccountLayout>

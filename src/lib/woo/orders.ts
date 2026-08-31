@@ -127,6 +127,7 @@ export async function syncPaidOrderToWoo(
       payment_method: 'webpay',
       payment_method_title: 'Webpay Plus',
       transaction_id: auth || session.buyOrder,
+      customer_id: session.customerId || 0,
       customer_note: shippingNote,
       billing: address,
       shipping: {

@@ -1,6 +1,6 @@
 ---
 interface Props {
-  name: 'arrow-ne' | 'arrow-right' | 'close' | 'touch' | 'leaf' | 'time' | 'guide' | 'alpaca' | 'chevron' | 'lock' | 'shield' | 'search';
+  name: 'arrow-ne' | 'arrow-right' | 'close' | 'touch' | 'leaf' | 'time' | 'guide' | 'alpaca' | 'chevron' | 'lock' | 'shield' | 'search' | 'user';
   class?: string;
   size?: number;
 }
@@ -52,6 +52,10 @@ const paths: Record<Props['name'], string[]> = {
   shield: [
     'M8 2.75 12.5 4.5v3.6c0 2.85-1.85 4.7-4.5 5.65C5.35 12.8 3.5 10.95 3.5 8.1V4.5L8 2.75Z',
     'M6.35 8.15 7.55 9.35 9.85 6.9',
+  ],
+  user: [
+    'M8 4.25a2.25 2.25 0 1 1 0 4.5 2.25 2.25 0 0 1 0-4.5Z',
+    'M4.75 12.75c0-1.8 1.45-3.25 3.25-3.25s3.25 1.45 3.25 3.25',
   ],
 };
 ---
