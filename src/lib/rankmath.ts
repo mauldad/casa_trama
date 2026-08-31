@@ -128,6 +128,19 @@ function usefulSchemaTypes(type: unknown) {
   );
 }
 
+function sanitizeRobotsForStorefront(robots?: string): string | undefined {
+  if (!robots) return undefined;
+  // En headless el CMS suele ir noindex; el storefront público debe indexarse.
+  const cleaned = robots
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => {
+      const key = part.toLowerCase();
+      return key && key !== 'noindex' && key !== 'nofollow';
+    });
+  return cleaned.length ? cleaned.join(', ') : undefined;
+}
+
 export function parseRankMathHead(
   headHtml: string,
   options: { storefrontCanonical: string; wpPath?: string },
@@ -135,7 +148,7 @@ export function parseRankMathHead(
   const title = headHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]?.trim();
   const description =
     metaBy(headHtml, 'description') || metaBy(headHtml, 'og:description', 'property');
-  const robots = metaBy(headHtml, 'robots');
+  const robots = sanitizeRobotsForStorefront(metaBy(headHtml, 'robots'));
   const ogTitle = metaBy(headHtml, 'og:title', 'property');
   const ogDescription = metaBy(headHtml, 'og:description', 'property');
   const ogImage = metaBy(headHtml, 'og:image', 'property');
