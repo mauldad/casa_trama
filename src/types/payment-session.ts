@@ -35,4 +35,10 @@ export interface PaymentSessionRecord {
   authorizationCode?: string;
   createdAt: string;
   emailsSentAt?: string;
+  /** Evidencia de aceptación expresa (Ley 21.719) */
+  consent?: {
+    acceptTerms: boolean;
+    newsletter: boolean;
+    capturedAt: string;
+  };
 }

@@ -74,6 +74,16 @@ import Icon from '@/components/Icon.astro';
         <input id="contact-company" name="company" type="text" tabindex="-1" autocomplete="off" />
       </div>
 
+      <label class="consent-check">
+        <input type="checkbox" name="privacyConsent" value="1" required />
+        <span>
+          He leído la
+          <a href="/privacidad/" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+          y autorizo el tratamiento de mis datos para responder esta consulta
+          (Ley N.º 19.628 / Ley N.º 21.719).
+        </span>
+      </label>
+
       <p class="contact-status" id="contact-status" role="status" aria-live="polite" hidden></p>
 
       <button class="button" type="submit" id="contact-submit">
@@ -106,7 +116,13 @@ import Icon from '@/components/Icon.astro';
       topic: String(new FormData(form).get('topic') || '').trim(),
       message: String(new FormData(form).get('message') || '').trim(),
       company: String(new FormData(form).get('company') || '').trim(),
+      privacyConsent: new FormData(form).get('privacyConsent') === '1',
     };
+
+    if (!payload.privacyConsent) {
+      showStatus('Debes aceptar la Política de Privacidad para enviar el mensaje.', 'error');
+      return;
+    }
 
     if (submit) {
       submit.disabled = true;

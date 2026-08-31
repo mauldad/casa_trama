@@ -1,4 +1,287 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const updated = '31 de agosto de 2026';
+const contactEmail = 'hola@casatrama.cl';
 ---
-<BaseLayout title="Privacidad" description="Política de privacidad de Casa Trama." noindex><section class="simple-page shell"><p class="eyebrow">Actualización pendiente</p><h1>Privacidad</h1><p>Plantilla preparada para la política de tratamiento de datos y consentimiento conforme a la operación chilena de Casa Trama.</p></section></BaseLayout>
+
+<BaseLayout
+  title="Política de Privacidad"
+  description="Cómo Casa Trama trata datos personales conforme a la Ley N.º 19.628 y la Ley N.º 21.719 de Chile."
+  canonical="https://casatrama.cl/privacidad/"
+>
+  <article class="legal-page shell">
+    <header class="legal-hero">
+      <p class="eyebrow">Protección de datos · Chile</p>
+      <h1>Política de Privacidad</h1>
+      <p class="legal-lede">
+        En Casa Trama cuidamos la materia y también la información que nos confías.
+        Esta política explica qué datos personales tratamos, para qué, con qué base legal
+        y cómo puedes ejercer tus derechos según la legislación chilena.
+      </p>
+      <p class="legal-meta">Última actualización: {updated}</p>
+    </header>
+
+    <nav class="legal-toc" aria-label="Contenidos">
+      <a href="#responsable">Responsable</a>
+      <a href="#marco">Marco legal</a>
+      <a href="#datos">Datos que tratamos</a>
+      <a href="#finalidades">Finalidades y bases</a>
+      <a href="#encargados">Encargados y transferencias</a>
+      <a href="#conservacion">Conservación</a>
+      <a href="#derechos">Tus derechos</a>
+      <a href="#seguridad">Seguridad</a>
+      <a href="#cookies">Cookies</a>
+      <a href="#consentimiento">Aceptación</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+
+    <div class="legal-body">
+      <section id="responsable">
+        <h2>1. Responsable del tratamiento</h2>
+        <p>
+          El responsable del tratamiento de tus datos personales es <strong>Casa Trama</strong>,
+          tienda de textiles y curatoría de fibras naturales con operación en Chile
+          (Puerto Varas).
+        </p>
+        <ul>
+          <li>Sitio web: <a href="https://casatrama.cl">https://casatrama.cl</a></li>
+          <li>Correo de privacidad / derechos ARCOP: <a href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
+        </ul>
+      </section>
+
+      <section id="marco">
+        <h2>2. Marco legal aplicable</h2>
+        <p>Esta política se elabora y aplica conforme a:</p>
+        <ul>
+          <li>
+            <strong>Ley N.º 19.628</strong> sobre Protección de la Vida Privada
+            (marco vigente de tratamiento de datos personales en Chile).
+          </li>
+          <li>
+            <strong>Ley N.º 21.719</strong>, que moderniza la protección de datos personales
+            en Chile, crea la Agencia de Protección de Datos Personales (APDP) y fortalece
+            los derechos de las personas titulares. Su vigencia plena está fijada para el
+            <strong>1 de diciembre de 2026</strong>; Casa Trama adecua sus prácticas de
+            forma anticipada a ese estándar.
+          </li>
+          <li>
+            Normativa complementaria aplicable a comercio electrónico y consumidores
+            (en particular <strong>Ley N.º 19.496</strong> sobre Protección de los Derechos
+            de los Consumidores), cuando corresponda.
+          </li>
+        </ul>
+      </section>
+
+      <section id="datos">
+        <h2>3. Datos personales que tratamos</h2>
+        <p>Según la interacción, podemos tratar:</p>
+        <ul>
+          <li>
+            <strong>Identificación y contacto:</strong> nombre, apellido, correo electrónico,
+            teléfono.
+          </li>
+          <li>
+            <strong>Despacho y facturación operativa:</strong> dirección, departamento o casa,
+            comuna, región y datos necesarios para coordinar la entrega en Chile.
+          </li>
+          <li>
+            <strong>Compra y pedido:</strong> piezas seleccionadas, montos, estado del pedido,
+            referencia de pago (sin almacenar el número completo de tu tarjeta).
+          </li>
+          <li>
+            <strong>Comunicaciones:</strong> mensajes enviados por el formulario de contacto
+            o correo, y preferencias de newsletter si te suscribes.
+          </li>
+          <li>
+            <strong>Datos técnicos de navegación:</strong> dirección IP, tipo de dispositivo,
+            páginas visitadas e identificadores de cookies o etiquetas de medición, cuando
+            correspondan.
+          </li>
+        </ul>
+        <p>
+          <strong>No solicitamos</strong> datos sensibles para operar la tienda. El pago con
+          tarjeta se procesa en el entorno seguro de Transbank Webpay Plus; Casa Trama no
+          ve ni guarda los datos completos de tu tarjeta.
+        </p>
+      </section>
+
+      <section id="finalidades">
+        <h2>4. Finalidades y bases de legitimación</h2>
+        <p>Tratamos datos solo cuando existe una finalidad legítima y una base jurídica:</p>
+        <div class="legal-table" role="table" aria-label="Finalidades del tratamiento">
+          <div class="legal-table-row legal-table-head" role="row">
+            <span role="columnheader">Finalidad</span>
+            <span role="columnheader">Base legal (orientación Ley 21.719)</span>
+          </div>
+          <div class="legal-table-row" role="row">
+            <span role="cell">Procesar y confirmar tu compra, pagos y coordinación de despacho</span>
+            <span role="cell">Ejecución de contrato / medidas precontractuales</span>
+          </div>
+          <div class="legal-table-row" role="row">
+            <span role="cell">Atender consultas por contacto o postventa</span>
+            <span role="cell">Ejecución de contrato e interés legítimo de atenderte</span>
+          </div>
+          <div class="legal-table-row" role="row">
+            <span role="cell">Cumplir obligaciones contables, tributarias o de consumo</span>
+            <span role="cell">Obligación legal</span>
+          </div>
+          <div class="legal-table-row" role="row">
+            <span role="cell">Enviar “Cartas de Casa Trama” u otras novedades comerciales</span>
+            <span role="cell">Consentimiento (revocable en cualquier momento)</span>
+          </div>
+          <div class="legal-table-row" role="row">
+            <span role="cell">Mejorar el sitio, seguridad y prevención de fraude</span>
+            <span role="cell">Interés legítimo, con proporcionales medidas de minimización</span>
+          </div>
+        </div>
+        <p>
+          El consentimiento, cuando se use, será <strong>libre, informado, específico e inequívoco</strong>.
+          Puedes revocarlo sin afectar la licitud del tratamiento previo.
+        </p>
+      </section>
+
+      <section id="encargados">
+        <h2>5. Encargados, proveedores y transferencias</h2>
+        <p>
+          Para operar el sitio y la tienda compartimos datos estrictamente necesarios con
+          proveedores que actúan como encargados o como responsables autónomos, según el caso:
+        </p>
+        <ul>
+          <li><strong>Transbank (Webpay Plus)</strong> — procesamiento de pagos.</li>
+          <li><strong>Resend</strong> — envío de correos transaccionales y de contacto.</li>
+          <li><strong>Loops</strong> — gestión de newsletter, si te suscribes.</li>
+          <li><strong>Netlify</strong> — hosting e infraestructura del sitio.</li>
+          <li><strong>WooCommerce / WordPress</strong> (catálogo y datos de producto asociados a <code>blog.casatrama.cl</code>).</li>
+          <li><strong>Google Tag Manager / herramientas de medición</strong>, si están activas en el sitio.</li>
+        </ul>
+        <p>
+          Algunos proveedores pueden tratar datos fuera de Chile. En esos casos buscamos
+          mecanismos contractuales y de seguridad acordes al estándar de la Ley 21.719
+          (incluyendo cláusulas y medidas adecuadas de transferencia internacional cuando apliquen).
+        </p>
+      </section>
+
+      <section id="conservacion">
+        <h2>6. Plazos de conservación</h2>
+        <ul>
+          <li>
+            <strong>Pedidos y facturación:</strong> el tiempo necesario para la relación comercial
+            y los plazos legales de conservación contable/tributaria.
+          </li>
+          <li>
+            <strong>Contacto:</strong> mientras dure la gestión de tu solicitud y un período
+            razonable posterior para seguimiento.
+          </li>
+          <li>
+            <strong>Newsletter:</strong> hasta que te desuscribas o retires el consentimiento.
+          </li>
+          <li>
+            <strong>Logs técnicos:</strong> por períodos limitados orientados a seguridad y operación.
+          </li>
+        </ul>
+        <p>Cuando ya no sean necesarios, los datos se eliminan, anonimizan o bloquean según corresponda.</p>
+      </section>
+
+      <section id="derechos">
+        <h2>7. Derechos de las personas titulares</h2>
+        <p>
+          De acuerdo con el marco chileno (y alineado a la Ley 21.719), puedes solicitar:
+        </p>
+        <ul>
+          <li><strong>Acceso</strong> a tus datos personales.</li>
+          <li><strong>Rectificación</strong> de datos inexactos o incompletos.</li>
+          <li><strong>Cancelación / supresión</strong>, cuando proceda.</li>
+          <li><strong>Oposición</strong> a determinados tratamientos.</li>
+          <li><strong>Portabilidad</strong> de tus datos, cuando sea técnicamente aplicable.</li>
+          <li><strong>Bloqueo</strong>, en los casos previstos por la ley.</li>
+        </ul>
+        <p>
+          Para ejercerlos, escribe a <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+          con el asunto “Derechos de datos personales”, indicando tu nombre, correo usado
+          en la compra o contacto, y la solicitud concreta. Responderemos dentro de los
+          plazos legales (orientación: <strong>30 días corridos</strong>, prorrogables una vez
+          cuando la complejidad lo justifique, conforme a la Ley 21.719).
+        </p>
+        <p>
+          También puedes presentar reclamos ante la autoridad competente en materia de
+          protección de datos personales en Chile (incluyendo la futura APDP cuando opere
+          plenamente).
+        </p>
+      </section>
+
+      <section id="seguridad">
+        <h2>8. Seguridad y vulneraciones</h2>
+        <p>
+          Aplicamos medidas técnicas y organizativas razonables (control de accesos,
+          comunicaciones cifradas HTTPS, minimización de datos y proveedores especializados
+          para pagos y correo). Ningún sistema es 100&nbsp;% infalible: si ocurre una
+          vulneración de seguridad con riesgo para tus derechos, procederemos a la
+          contención y, cuando corresponda, a la notificación a la autoridad y a las
+          personas afectadas según la Ley 21.719.
+        </p>
+      </section>
+
+      <section id="cookies">
+        <h2>9. Cookies y tecnologías similares</h2>
+        <p>
+          Usamos cookies o tecnologías equivalentes necesarias para el carro, la sesión
+          y la seguridad del sitio. Otras cookies de medición o marketing, si se habilitan,
+          se usarán conforme a esta política y, cuando la ley lo exija, con tu consentimiento.
+          Puedes configurar tu navegador para limitar cookies; algunas funciones del sitio
+          podrían verse afectadas.
+        </p>
+      </section>
+
+      <section id="consentimiento">
+        <h2>10. Cómo pedimos tu aceptación</h2>
+        <p>
+          Conforme a la Ley N.º 21.719, cuando el tratamiento se funda en consentimiento
+          este debe ser <strong>libre, informado, específico e inequívoco</strong>. En Casa Trama:
+        </p>
+        <ul>
+          <li>
+            En el <strong>checkout</strong> pedimos una casilla obligatoria (sin marcar por defecto)
+            para aceptar términos, privacidad y el tratamiento de datos de la compra.
+          </li>
+          <li>
+            El envío de <strong>novedades</strong> usa una casilla separada y opcional
+            (o requerida solo si te suscribes al newsletter).
+          </li>
+          <li>
+            En <strong>contacto</strong> pedimos aceptación expresa de la Política de Privacidad
+            para responder tu mensaje.
+          </li>
+          <li>
+            Registramos la aceptación asociada al pedido (fecha/hora) como evidencia de
+            accountability cuando corresponde.
+          </li>
+        </ul>
+      </section>
+
+      <section id="contacto">
+        <h2>11. Contacto y cambios</h2>
+        <p>
+          Consultas sobre esta política: <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+          o a través de <a href="/contacto/">Contacto</a>.
+        </p>
+        <p>
+          Podemos actualizar este texto para reflejar cambios legales u operativos.
+          La fecha de “última actualización” indica la versión vigente. Si el cambio es
+          relevante, lo comunicaremos por medios razonables (por ejemplo, aviso en el sitio
+          o correo cuando corresponda).
+        </p>
+        <p class="legal-note">
+          Este documento tiene carácter informativo y de transparencia hacia nuestras clientas
+          y visitantes. No reemplaza asesoría jurídica particular; Casa Trama puede complementar
+          estos lineamientos con procedimientos internos (registro de tratamientos, encargados
+          y respuesta a incidentes) exigidos por la normativa.
+        </p>
+      </section>
+    </div>
+
+    <p class="legal-related">
+      También puedes revisar los <a href="/terminos/">Términos y condiciones</a> de compra.
+    </p>
+  </article>
+</BaseLayout>

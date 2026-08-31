@@ -1,4 +1,183 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const updated = '31 de agosto de 2026';
+const contactEmail = 'hola@casatrama.cl';
 ---
-<BaseLayout title="Términos y condiciones" description="Términos y condiciones de Casa Trama." noindex><section class="simple-page shell"><p class="eyebrow">Actualización pendiente</p><h1>Términos</h1><p>Plantilla preparada para incorporar los términos comerciales definitivos antes de activar pagos reales.</p></section></BaseLayout>
+
+<BaseLayout
+  title="Términos y condiciones"
+  description="Condiciones de compra de Casa Trama en Chile, alineadas a la Ley del Consumidor y a la protección de datos personales."
+  canonical="https://casatrama.cl/terminos/"
+>
+  <article class="legal-page shell">
+    <header class="legal-hero">
+      <p class="eyebrow">Compra · Chile</p>
+      <h1>Términos y condiciones</h1>
+      <p class="legal-lede">
+        Estos términos regulan el uso de casatrama.cl y las compras de piezas Casa Trama.
+        Al navegar o comprar, aceptas estas condiciones junto con nuestra
+        <a href="/privacidad/">Política de Privacidad</a>.
+      </p>
+      <p class="legal-meta">Última actualización: {updated}</p>
+    </header>
+
+    <nav class="legal-toc" aria-label="Contenidos">
+      <a href="#identidad">Identidad</a>
+      <a href="#servicio">Servicio</a>
+      <a href="#compras">Compras y precios</a>
+      <a href="#pago">Pago</a>
+      <a href="#despacho">Despacho</a>
+      <a href="#cambios">Cambios</a>
+      <a href="#datos">Datos personales</a>
+      <a href="#propiedad">Propiedad</a>
+      <a href="#responsabilidad">Responsabilidad</a>
+      <a href="#ley">Ley aplicable</a>
+    </nav>
+
+    <div class="legal-body">
+      <section id="identidad">
+        <h2>1. Identidad del proveedor</h2>
+        <p>
+          <strong>Casa Trama</strong> ofrece textiles y piezas de fibras naturales seleccionadas,
+          con operación en Chile (Puerto Varas). Sitio: <a href="https://casatrama.cl">casatrama.cl</a>.
+          Contacto: <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
+        </p>
+      </section>
+
+      <section id="servicio">
+        <h2>2. Ámbito del servicio</h2>
+        <p>
+          El sitio permite conocer el catálogo, solicitar información y comprar piezas disponibles.
+          Las descripciones, fotografías y atributos sensoriales buscan representar con honestidad
+          cada pieza; pueden existir diferencias menores propias de materiales naturales.
+        </p>
+        <p>
+          El stock es limitado. Una pieza puede agotarse entre la visita y el pago; en ese caso
+          te contactaremos para alternativas o la anulación/reembolso correspondiente.
+        </p>
+      </section>
+
+      <section id="compras">
+        <h2>3. Proceso de compra, precios e impuestos</h2>
+        <ul>
+          <li>Los precios se muestran en <strong>pesos chilenos (CLP)</strong>.</li>
+          <li>
+            El total de productos se confirma en el checkout antes de iniciar el pago.
+            Salvo indicación expresa, el costo de despacho puede coordinarse después de la compra
+            según comuna y volumen (ver <a href="/despachos/">Despachos</a>).
+          </li>
+          <li>
+            Al confirmar el pedido declaras que los datos entregados son verdaderos y suficientes
+            para facturar/coordinar la entrega.
+          </li>
+        </ul>
+      </section>
+
+      <section id="pago">
+        <h2>4. Medios de pago</h2>
+        <p>
+          El pago en línea se realiza a través de <strong>Webpay Plus (Transbank)</strong>.
+          Casa Trama no almacena los datos completos de tu tarjeta. La autorización del cargo
+          depende del emisor de la tarjeta y de Transbank.
+        </p>
+        <p>
+          Si el pago es rechazado, anulado o no confirmado, el pedido no se tendrá por
+          perfeccionado. Conservamos registros operativos del intento según nuestra
+          <a href="/privacidad/">Política de Privacidad</a>.
+        </p>
+      </section>
+
+      <section id="despacho">
+        <h2>5. Despacho</h2>
+        <p>
+          Despachamos dentro de Chile. Plazos y costos dependen de la dirección, la pieza y
+          la logística disponible. Tras el pago te contactaremos para concretar el envío.
+          Detalles orientativos en <a href="/despachos/">Despachos</a>.
+        </p>
+      </section>
+
+      <section id="cambios">
+        <h2>6. Cambios, devoluciones y derecho del consumidor</h2>
+        <p>
+          Las condiciones de cambios y devoluciones están descritas en
+          <a href="/cambios-y-devoluciones/">Cambios y devoluciones</a>.
+        </p>
+        <p>
+          Como consumidor en Chile te asisten los derechos de la
+          <strong>Ley N.º 19.496</strong> sobre Protección de los Derechos de los Consumidores
+          (calidad, información veraz, garantía legal cuando corresponda, y demás derechos
+          irrenunciables). Nada en estos términos pretende limitar derechos que la ley declare
+          irrenunciables.
+        </p>
+      </section>
+
+      <section id="datos">
+        <h2>7. Datos personales</h2>
+        <p>
+          El tratamiento de datos personales se rige por nuestra
+          <a href="/privacidad/">Política de Privacidad</a>, elaborada conforme a la
+          <strong>Ley N.º 19.628</strong> y alineada a la <strong>Ley N.º 21.719</strong>
+          de protección de datos personales (vigencia plena prevista el 1 de diciembre de 2026).
+        </p>
+        <p>
+          Al comprar, tratamos los datos necesarios para ejecutar el contrato (pago, confirmación,
+          despacho y postventa). El envío de novedades comerciales requiere tu consentimiento
+          y puedes revocarlo en cualquier momento.
+        </p>
+        <p>
+          Puedes ejercer derechos de acceso, rectificación, cancelación/supresión, oposición,
+          portabilidad y bloqueo escribiendo a
+          <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
+        </p>
+      </section>
+
+      <section id="propiedad">
+        <h2>8. Propiedad intelectual</h2>
+        <p>
+          Textos, fotografías, marcas, tipografías de marca y diseño del sitio pertenecen a
+          Casa Trama o a sus licenciantes. No está permitido copiar, republicar o explotar
+          comercialmente esos contenidos sin autorización previa por escrito.
+        </p>
+      </section>
+
+      <section id="responsabilidad">
+        <h2>9. Uso del sitio y responsabilidad</h2>
+        <p>
+          Te comprometes a usar el sitio de buena fe, sin intentar vulnerar su seguridad ni
+          interferir con otros usuarios. Haremos esfuerzos razonables por mantener el sitio
+          disponible, sin garantizar disponibilidad ininterrumpida.
+        </p>
+        <p>
+          Casa Trama no responde por fallas atribuibles a terceros (pasarela de pago, correo,
+          hosting o operadores logísticos), sin perjuicio de las acciones que te correspondan
+          frente a ellos o de nuestras obligaciones legales como proveedor.
+        </p>
+      </section>
+
+      <section id="ley">
+        <h2>10. Ley aplicable y contacto</h2>
+        <p>
+          Estos términos se rigen por las leyes de la <strong>República de Chile</strong>.
+          Cualquier controversia se someterá a los tribunales competentes de Chile, sin
+          perjuicio de los mecanismos de reclamo ante SERNAC u otras autoridades cuando
+          procedan.
+        </p>
+        <p>
+          Consultas: <a href={`mailto:${contactEmail}`}>{contactEmail}</a> ·
+          <a href="/contacto/">Formulario de contacto</a>.
+        </p>
+        <p class="legal-note">
+          Casa Trama puede actualizar estos términos. La versión publicada en esta página,
+          con su fecha de actualización, es la vigente. El uso continuado del sitio o nuevas
+          compras tras un cambio relevante implican aceptación de la versión actualizada,
+          cuando la ley lo permita.
+        </p>
+      </section>
+    </div>
+
+    <p class="legal-related">
+      Revisa también la <a href="/privacidad/">Política de Privacidad</a>.
+    </p>
+  </article>
+</BaseLayout>

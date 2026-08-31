@@ -17,9 +17,7 @@ export default defineConfig({
         !page.includes('/checkout') &&
         !page.includes('/pedido/') &&
         !page.includes('/api/') &&
-        !page.includes('/feeds/') &&
-        !page.includes('/privacidad') &&
-        !page.includes('/terminos'),
+        !page.includes('/feeds/'),
       customPages: catalogPages,
       serialize(item) {
         return {

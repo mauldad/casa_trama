@@ -1,4 +1,4 @@
-import type { PaymentCustomer, PaymentLineItem } from '@/types/payment-session';
+import type { PaymentCustomer, PaymentLineItem, PaymentSessionRecord } from '@/types/payment-session';
 
 export type NormalizedPaymentStatus =
   | 'pending'
@@ -19,6 +19,7 @@ export interface PaymentOrder {
   orderToken?: string;
   customer?: PaymentCustomer;
   items?: PaymentLineItem[];
+  consent?: PaymentSessionRecord['consent'];
 }
 
 export interface PaymentSession {

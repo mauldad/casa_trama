@@ -15,7 +15,9 @@ interface CreatePaymentBody {
   commune?: string;
   region?: string;
   shippingMethod?: string;
+  acceptTerms?: boolean | string | number;
   newsletter?: boolean | string | number;
+  consentCapturedAt?: string;
   orderToken?: string;
   items?: Array<{
     productId?: number;
@@ -27,6 +29,9 @@ interface CreatePaymentBody {
     image?: string;
   }>;
 }
+
+const isAccepted = (value: boolean | string | number | undefined) =>
+  value === true || value === 1 || value === '1' || value === 'true';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -41,6 +46,14 @@ export const POST: APIRoute = async ({ request }) => {
     }
     if (!customerEmail) {
       return new Response(JSON.stringify({ error: 'Correo requerido.' }), { status: 400 });
+    }
+    if (!isAccepted(body.acceptTerms)) {
+      return new Response(
+        JSON.stringify({
+          error: 'Debes aceptar los términos y la política de privacidad para continuar.',
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
+      );
     }
 
     const customer: PaymentCustomer = {
@@ -72,6 +85,9 @@ export const POST: APIRoute = async ({ request }) => {
     const idempotencyKey = `order/${orderId}/v1`;
     const siteUrl = getSiteUrl();
     const returnUrl = `${siteUrl}/api/payments/webpay/return?order=${orderToken}&oid=${orderId}`;
+    const wantsNewsletter = isAccepted(body.newsletter);
+    const consentCapturedAt =
+      String(body.consentCapturedAt || '').trim() || new Date().toISOString();
 
     const provider = getPaymentProvider();
     const session = await provider.createPayment({
@@ -84,13 +100,12 @@ export const POST: APIRoute = async ({ request }) => {
       orderToken,
       customer,
       items,
+      consent: {
+        acceptTerms: true,
+        newsletter: wantsNewsletter,
+        capturedAt: consentCapturedAt,
+      },
     });
-
-    const wantsNewsletter =
-      body.newsletter === true ||
-      body.newsletter === 1 ||
-      body.newsletter === '1' ||
-      body.newsletter === 'true';
 
     if (wantsNewsletter) {
       void upsertLoopsContact({

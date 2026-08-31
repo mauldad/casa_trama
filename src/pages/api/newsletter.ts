@@ -6,9 +6,12 @@ interface NewsletterBody {
   company?: string;
   source?: string;
   firstName?: string;
+  marketingConsent?: boolean | string | number;
 }
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const isAccepted = (value: boolean | string | number | undefined) =>
+  value === true || value === 1 || value === '1' || value === 'true';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -30,6 +33,15 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!email || !isEmail(email) || email.length > 160) {
       return new Response(JSON.stringify({ error: 'Correo inválido.' }), { status: 400 });
+    }
+
+    if (!isAccepted(body.marketingConsent)) {
+      return new Response(
+        JSON.stringify({
+          error: 'Debes aceptar recibir novedades y la Política de Privacidad.',
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
+      );
     }
 
     if (!getLoopsApiKey()) {

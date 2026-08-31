@@ -10,6 +10,7 @@ interface ContactBody {
   topic?: string;
   message?: string;
   company?: string;
+  privacyConsent?: boolean | string | number;
 }
 
 const topicLabels: Record<string, string> = {
@@ -21,6 +22,9 @@ const topicLabels: Record<string, string> = {
 };
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const isAccepted = (value: boolean | string | number | undefined) =>
+  value === true || value === 1 || value === '1' || value === 'true';
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = (await request.json()) as ContactBody;
@@ -50,6 +54,12 @@ export const POST: APIRoute = async ({ request }) => {
     }
     if (!message || message.length < 8 || message.length > 4000) {
       return new Response(JSON.stringify({ error: 'Mensaje inválido.' }), { status: 400 });
+    }
+    if (!isAccepted(body.privacyConsent)) {
+      return new Response(
+        JSON.stringify({ error: 'Debes aceptar la Política de Privacidad.' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
+      );
     }
 
     const resend = getResendClient();

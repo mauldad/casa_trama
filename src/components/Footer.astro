@@ -19,25 +19,37 @@ import Icon from '@/components/Icon.astro';
       <a href="/despachos/">Despachos</a>
       <a href="/cambios-y-devoluciones/">Cambios y devoluciones</a>
       <a href="/guias/fibras-nobles/">Cuidado de fibras</a>
+      <a href="/privacidad/">Privacidad</a>
+      <a href="/terminos/">Términos</a>
     </section>
     <section class="newsletter">
       <h3>Cartas de Casa Trama</h3>
       <p>Nuevas piezas, historias de materialidad y formas de cuidarlas.</p>
       <form id="newsletter-form" class="newsletter-form" novalidate>
         <label class="sr-only" for="newsletter-email">Tu correo</label>
-        <input
-          id="newsletter-email"
-          name="email"
-          type="email"
-          autocomplete="email"
-          placeholder="tu@correo.cl"
-          required
-          maxlength="160"
-        />
-        <input class="sr-only" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
-        <button type="submit" aria-label="Suscribirme">
-          <Icon name="arrow-right" size={14} />
-        </button>
+        <div class="newsletter-row">
+          <input
+            id="newsletter-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            placeholder="tu@correo.cl"
+            required
+            maxlength="160"
+          />
+          <input class="sr-only" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button type="submit" aria-label="Suscribirme">
+            <Icon name="arrow-right" size={14} />
+          </button>
+        </div>
+        <label class="consent-check consent-check-footer">
+          <input type="checkbox" name="marketingConsent" value="1" required />
+          <span>
+            Acepto recibir novedades y la
+            <a href="/privacidad/">Política de Privacidad</a>
+            (puedo darme de baja cuando quiera).
+          </span>
+        </label>
       </form>
       <p class="newsletter-status" id="newsletter-status" hidden aria-live="polite"></p>
     </section>
@@ -60,11 +72,19 @@ import Icon from '@/components/Icon.astro';
     const data = new FormData(form);
     const email = String(data.get('email') || '').trim();
     const company = String(data.get('company') || '').trim();
+    const marketingConsent = data.get('marketingConsent') === '1';
     const button = form.querySelector('button');
 
     if (!email) {
       status.hidden = false;
       status.textContent = 'Escribe tu correo.';
+      status.dataset.state = 'error';
+      return;
+    }
+
+    if (!marketingConsent) {
+      status.hidden = false;
+      status.textContent = 'Marca la casilla para aceptar novedades y privacidad.';
       status.dataset.state = 'error';
       return;
     }
@@ -78,7 +98,12 @@ import Icon from '@/components/Icon.astro';
       const response = await fetch('/api/newsletter/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, company, source: 'Cartas Casa Trama · Footer' }),
+        body: JSON.stringify({
+          email,
+          company,
+          source: 'Cartas Casa Trama · Footer',
+          marketingConsent: true,
+        }),
       });
       const payload = (await response.json()) as { ok?: boolean; error?: string };
 

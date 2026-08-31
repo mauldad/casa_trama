@@ -42,10 +42,6 @@ const regions = [
             <label for="email">Correo electrónico</label>
             <input id="email" name="email" type="email" autocomplete="email" placeholder="tu@correo.cl" required />
           </div>
-          <label class="xo-check">
-            <input type="checkbox" name="newsletter" value="1" />
-            <span>Recibir novedades de fibras y nuevas piezas</span>
-          </label>
         </section>
 
         <section class="xo-section">
@@ -140,6 +136,35 @@ const regions = [
           </div>
         </section>
 
+        <section class="xo-section xo-consent-section" aria-labelledby="consent-heading">
+          <div class="xo-section-head">
+            <h2 id="consent-heading">Aceptaciones</h2>
+          </div>
+          <p class="xo-consent-intro">
+            Según la normativa chilena de protección de datos (Ley N.º 19.628 y Ley N.º 21.719),
+            necesitamos tu aceptación expresa e informada. Las casillas no vienen marcadas.
+          </p>
+          <label class="xo-check xo-check-required">
+            <input type="checkbox" name="acceptTerms" value="1" required />
+            <span>
+              He leído y acepto los
+              <a href="/terminos/" target="_blank" rel="noopener noreferrer">Términos y condiciones</a>
+              y la
+              <a href="/privacidad/" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>,
+              y autorizo el tratamiento de mis datos personales para gestionar esta compra,
+              el pago, el despacho y la atención postventa.
+            </span>
+          </label>
+          <label class="xo-check">
+            <input type="checkbox" name="newsletter" value="1" />
+            <span>
+              Quiero recibir “Cartas de Casa Trama” (novedades y piezas) por correo.
+              Este consentimiento es opcional y puedo revocarlo cuando quiera.
+              Ver <a href="/privacidad/" target="_blank" rel="noopener noreferrer">Privacidad</a>.
+            </span>
+          </label>
+        </section>
+
         <div class="xo-actions">
           <a class="xo-back" href="/carro/"><Icon name="arrow-right" size={14} class="xo-back-icon" /> Volver al carro</a>
           <button class="xo-submit" type="submit" id="checkout-submit">
@@ -148,7 +173,6 @@ const regions = [
         </div>
         <p class="xo-error" id="checkout-error" hidden role="alert"></p>
         <p class="xo-fineprint">
-          Al continuar aceptas los <a href="/terminos/">términos</a> y la <a href="/privacidad/">privacidad</a> de Casa Trama.
           Por ahora solo se cobra el total de productos; el envío se conviene contigo después de la compra.
         </p>
       </form>
@@ -297,11 +321,13 @@ const regions = [
             lastName: formData.get('lastName'),
             phone: formData.get('phone'),
             address: formData.get('address'),
-            apartment: formData.get('apartment'),
-            commune: formData.get('commune'),
+            apartment: formData.get('address2'),
+            commune: formData.get('city'),
             region: formData.get('region'),
             shippingMethod: formData.get('shippingMethod') || 'agreed',
+            acceptTerms: formData.get('acceptTerms') === '1',
             newsletter: formData.get('newsletter') === '1',
+            consentCapturedAt: new Date().toISOString(),
             items: cart.map((line) => ({
               productId: line.productId,
               sku: line.sku,
