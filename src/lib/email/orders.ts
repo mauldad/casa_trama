@@ -29,6 +29,9 @@ export async function sendPurchaseEmails(
   const auth = options.authorizationCode ? ` · Auth ${options.authorizationCode}` : '';
   const name = session.customer.firstName || 'hola';
 
+  const orderLabel = session.wooOrderNumber
+    ? `#${session.wooOrderNumber} · ${session.buyOrder}`
+    : session.buyOrder;
   const customerHtml = buildCustomerConfirmationHtml(session, {
     siteUrl,
     orderUrl,
@@ -39,7 +42,7 @@ export async function sendPurchaseEmails(
     `Tu pedido está confirmado`,
     ``,
     `${name}, recibimos tu pago con Webpay.`,
-    `Pedido ${session.buyOrder}${auth}`,
+    `Pedido ${orderLabel}${auth}`,
     `Total ${formatClp(session.amount)}`,
     `Estado: ${orderUrl}`,
     ``,
@@ -53,7 +56,8 @@ export async function sendPurchaseEmails(
 
   const storeText = [
     `Nuevo pedido pagado`,
-    `Pedido ${session.buyOrder}${auth}`,
+    `Pedido ${orderLabel}${auth}`,
+    session.wooOrderId ? `WooCommerce #${session.wooOrderNumber || session.wooOrderId}` : '',
     `Total ${formatClp(session.amount)}`,
     `Cliente ${session.customer.email}`,
     session.customer.phone ? `Tel ${session.customer.phone}` : '',
@@ -66,7 +70,7 @@ export async function sendPurchaseEmails(
       from,
       to: [session.customerEmail],
       replyTo: storeTo,
-      subject: `Pedido confirmado · ${session.buyOrder}`,
+      subject: `Pedido confirmado · ${orderLabel}`,
       html: customerHtml,
       text: customerText,
     },
@@ -83,7 +87,7 @@ export async function sendPurchaseEmails(
       from,
       to: [storeTo],
       replyTo: session.customerEmail,
-      subject: `Nuevo pedido · ${session.buyOrder} · ${formatClp(session.amount)}`,
+      subject: `Nuevo pedido · ${orderLabel} · ${formatClp(session.amount)}`,
       html: storeHtml,
       text: storeText,
     },

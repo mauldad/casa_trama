@@ -213,14 +213,17 @@ export function buildCustomerConfirmationHtml(
 ) {
   const name = session.customer.firstName || 'hola';
   const auth = options.authorizationCode ? ` · Auth ${options.authorizationCode}` : '';
+  const orderLabel = session.wooOrderNumber
+    ? `#${session.wooOrderNumber} · ${session.buyOrder}`
+    : session.buyOrder;
 
   return emailShell({
     title: 'Tu pedido está confirmado',
-    preview: `${name}, recibimos tu pago. Pedido ${session.buyOrder} · ${formatClp(session.amount)}`,
+    preview: `${name}, recibimos tu pago. Pedido ${orderLabel} · ${formatClp(session.amount)}`,
     eyebrow: 'Confirmación · Casa Trama',
     body: `
       ${prose(`${escapeHtml(name)}, recibimos tu pago con Webpay. Prepararemos tu pieza con calma y coordinaremos el envío contigo.`)}
-      ${orderBadge(session.buyOrder, auth)}
+      ${orderBadge(orderLabel, auth)}
       ${itemsTable(session.items, session.amount, options.siteUrl)}
       ${customerDetails(session.customer)}
       ${ctaButton(options.orderUrl, 'Ver estado del pedido')}
@@ -235,14 +238,17 @@ export function buildStoreOrderHtml(
   options: { siteUrl: string; authorizationCode?: string },
 ) {
   const auth = options.authorizationCode ? ` · Auth ${options.authorizationCode}` : '';
+  const orderLabel = session.wooOrderNumber
+    ? `#${session.wooOrderNumber} · ${session.buyOrder}`
+    : session.buyOrder;
 
   return emailShell({
     title: 'Nuevo pedido pagado',
-    preview: `Pedido ${session.buyOrder} · ${formatClp(session.amount)} · ${session.customer.email}`,
+    preview: `Pedido ${orderLabel} · ${formatClp(session.amount)} · ${session.customer.email}`,
     eyebrow: 'Aviso de tienda',
     body: `
       ${prose('Llegó un pedido pagado por Webpay. El envío se conviene directamente con la clienta.')}
-      ${orderBadge(session.buyOrder, auth)}
+      ${orderBadge(orderLabel, auth)}
       ${itemsTable(session.items, session.amount, options.siteUrl)}
       ${customerDetails(session.customer)}
     `,

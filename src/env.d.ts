@@ -9,6 +9,9 @@ interface ImportMetaEnv {
   readonly PUBLIC_WP_URL: string;
   readonly WP_GRAPHQL_URL?: string;
   readonly WOO_STORE_API_URL: string;
+  readonly WC_CONSUMER_KEY?: string;
+  readonly WC_CONSUMER_SECRET?: string;
+  readonly WP_URL?: string;
   readonly PUBLIC_GTM_ID: string;
   readonly RESEND_API_KEY: string;
   readonly RESEND_FROM_EMAIL?: string;

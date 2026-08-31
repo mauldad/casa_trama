@@ -3,10 +3,12 @@ import { getPaymentProvider } from '@/lib/payment';
 import {
   getPaymentSession,
   getPaymentSessionByOrderToken,
+  savePaymentSession,
   updatePaymentSessionStatus,
 } from '@/lib/payment/session-store';
 import { getSiteUrl } from '@/lib/payment/transbank';
 import { sendPaymentFailedEmail, sendPurchaseEmails } from '@/lib/email/orders';
+import { syncPaidOrderToWoo } from '@/lib/woo/orders';
 
 function redirectToOrder(orderToken: string, status: string) {
   const siteUrl = getSiteUrl();
@@ -69,11 +71,32 @@ async function handleReturn({ request, url }: Parameters<APIRoute>[0]) {
     );
 
     if (session && result.status === 'approved') {
+      let paidSession = { ...session, status: 'approved' as const };
+
       try {
-        await sendPurchaseEmails(
-          { ...session, status: 'approved' },
-          { authorizationCode: result.authorizationCode, paymentToken: tokenWs },
-        );
+        const synced = await syncPaidOrderToWoo(paidSession, {
+          authorizationCode: result.authorizationCode,
+        });
+        if (synced.order) {
+          paidSession = {
+            ...paidSession,
+            wooOrderId: synced.order.id,
+            wooOrderNumber: synced.order.number,
+            authorizationCode: result.authorizationCode || paidSession.authorizationCode,
+          };
+          await savePaymentSession(tokenWs, paidSession);
+        } else if (synced.skipped) {
+          console.warn('[payments/webpay/return] woo sync skipped:', synced.skipped);
+        }
+      } catch (error) {
+        console.error('[payments/webpay/return] woo sync', error);
+      }
+
+      try {
+        await sendPurchaseEmails(paidSession, {
+          authorizationCode: result.authorizationCode,
+          paymentToken: tokenWs,
+        });
       } catch (error) {
         console.error('[payments/webpay/return] purchase emails', error);
       }

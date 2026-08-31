@@ -35,6 +35,9 @@ export interface PaymentSessionRecord {
   authorizationCode?: string;
   createdAt: string;
   emailsSentAt?: string;
+  /** ID / número del pedido creado en WooCommerce */
+  wooOrderId?: number;
+  wooOrderNumber?: string;
   /** Evidencia de aceptación expresa (Ley 21.719) */
   consent?: {
     acceptTerms: boolean;
