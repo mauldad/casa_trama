@@ -54,7 +54,13 @@ const socialTitle = ogTitle
   : pageTitle;
 const socialDescription = stripHtml(ogDescription || description);
 const metaDescription = stripHtml(description);
-const schemas = schema ? [organizationSchema].concat(schema as never) : [organizationSchema];
+const schemas = !schema
+  ? [organizationSchema]
+  : Array.isArray(schema)
+    ? [organizationSchema, ...schema]
+    : '@graph' in schema
+      ? [schema]
+      : [organizationSchema, schema];
 const gtmId = import.meta.env.PUBLIC_GTM_ID;
 const robotsContent = noindex ? 'noindex,follow' : robots;
 const absoluteOgImage = ogImage

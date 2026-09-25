@@ -24,11 +24,45 @@ export const organizationSchema = {
 
 export const websiteSchema = {
   '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'Casa Trama',
-  url: SITE,
-  inLanguage: 'es-CL',
-  publisher: { '@id': `${SITE}/#organization` },
+  '@graph': [
+    {
+      '@type': 'OnlineStore',
+      '@id': `${SITE}/#organization`,
+      name: 'Casa Trama',
+      url: `${SITE}/`,
+      description:
+        'Tienda online de prendas y accesorios de fibras naturales y materiales nobles, con una selección de piezas de baby alpaca.',
+      areaServed: {
+        '@type': 'Country',
+        name: 'Chile',
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE}/#website`,
+      url: `${SITE}/`,
+      name: 'Casa Trama',
+      inLanguage: 'es-CL',
+      publisher: {
+        '@id': `${SITE}/#organization`,
+      },
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${SITE}/#webpage`,
+      url: `${SITE}/`,
+      name: 'Ropa de fibras naturales y materiales nobles | Casa Trama',
+      description:
+        'Descubre prendas y accesorios de fibras naturales seleccionados por su composición, tacto y duración. Explora las piezas de baby alpaca de Casa Trama en Chile.',
+      inLanguage: 'es-CL',
+      isPartOf: {
+        '@id': `${SITE}/#website`,
+      },
+      about: {
+        '@id': `${SITE}/#organization`,
+      },
+    },
+  ],
 };
 
 export const productSchema = (product: Product, canonical: string) => {

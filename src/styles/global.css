@@ -602,6 +602,16 @@ body.search-open { overflow: hidden; }
   color: #fff;
   background: var(--paper-deep);
 }
+a.hero-panel {
+  display: block;
+  text-decoration: none;
+  color: #fff;
+  cursor: pointer;
+}
+a.hero-panel:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: -6px;
+}
 .hero-panel img {
   width: 100%;
   height: 100%;
