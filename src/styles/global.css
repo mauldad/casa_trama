@@ -167,6 +167,18 @@ h1, h2, h3, h4, h5, h6 {
   text-transform: uppercase;
   white-space: nowrap;
 }
+.home-masthead-title {
+  margin: 0;
+  padding: 0 clamp(22px, 3vw, 48px) 18px;
+  background: var(--paper);
+  text-align: center;
+  font-family: var(--sans);
+  font-size: clamp(11px, 1.05vw, 13px);
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: .04em;
+  color: color-mix(in srgb, var(--ink), transparent 18%);
+}
 
 .desktop-nav {
   grid-column: 1;
@@ -756,7 +768,7 @@ a.hero-panel:focus-visible {
   color: color-mix(in srgb, var(--ink), transparent 12%);
 }
 .home-intro-credit { margin-bottom: 28px; }
-.home-intro h1 {
+.home-intro-headline {
   margin: 0;
   max-width: 16ch;
   font-family: var(--display);
@@ -3228,7 +3240,7 @@ body.cart-open { overflow: hidden; }
   .home-intro {
     padding: 64px 0 72px;
   }
-  .home-intro h1 {
+  .home-intro-headline {
     max-width: none;
     font-size: clamp(32px, 8.5vw, 44px);
   }
